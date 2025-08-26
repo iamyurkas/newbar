@@ -1,9 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -27,17 +27,30 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="cocktails"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Cocktails',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={28} name="local-bar" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="shaker"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Shaker',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={28} name="science" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ingredients"
+        options={{
+          title: 'Ingredients',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={28} name="shopping-cart" color={color} />
+          ),
         }}
       />
     </Tabs>
