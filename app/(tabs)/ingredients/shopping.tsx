@@ -1,14 +1,10 @@
-import { Button } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
+import IngredientList from '@/components/IngredientList';
 
 export default function ShoppingIngredientsScreen() {
-  const router = useRouter();
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'space-between', padding: 16 }}>
-      <ThemedText type="title">Shopping List</ThemedText>
-      <Button title="Add" onPress={() => router.push('/add-ingredient')} />
+    <ThemedView style={{ flex: 1 }}>
+      <IngredientList />
     </ThemedView>
   );
 }
