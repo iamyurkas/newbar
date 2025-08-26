@@ -1,18 +1,16 @@
 import React from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// eslint-disable-next-line import/no-unresolved
+import { useTheme } from 'react-native-paper';
 
 export default function GeneralMenu() {
-  const colorScheme = useColorScheme();
-  const scheme = colorScheme ?? 'light';
+  const { colors } = useTheme();
 
-  const tintColor = Colors[scheme].tint;
-  const iconColor = Colors[scheme].icon;
-  const textColor = Colors[scheme].text;
-  const backgroundColor = Colors[scheme].background;
+  const tintColor = colors.primary;
+  const iconColor = colors.onSurfaceVariant;
+  const textColor = colors.onSurface;
+  const backgroundColor = colors.background;
 
   return (
     <View style={[styles.container, { backgroundColor }]}> 

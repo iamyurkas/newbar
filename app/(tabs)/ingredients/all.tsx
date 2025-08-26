@@ -4,20 +4,20 @@ import { useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/ThemedView';
 import IngredientList from '@/components/IngredientList';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// eslint-disable-next-line import/no-unresolved
+import { useTheme } from 'react-native-paper';
 
 export default function AllIngredientsScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
   return (
     <ThemedView style={{ flex: 1 }}>
       <IngredientList />
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: Colors[colorScheme ?? 'light'].tint }]}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
         onPress={() => router.push('/add-ingredient')}
       >
-        <MaterialIcons name="add" size={24} color="#fff" />
+        <MaterialIcons name="add" size={24} color={colors.onPrimary} />
       </TouchableOpacity>
     </ThemedView>
   );

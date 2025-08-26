@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+// eslint-disable-next-line import/no-unresolved
 import { PaperProvider } from 'react-native-paper';
 
 import { AppTheme } from '@/constants/AppTheme';
@@ -30,7 +31,7 @@ export default function RootLayout() {
               <Stack.Screen name="+not-found" />
             </Stack>
           </SafeAreaView>
-          <StatusBar style="dark" backgroundColor={AppTheme.colors.background} />
+          <StatusBar style="dark" />
         </ThemeProvider>
       </PaperProvider>
     </SafeAreaProvider>
