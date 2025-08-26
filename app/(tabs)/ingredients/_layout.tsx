@@ -1,4 +1,5 @@
 import { withLayoutContext } from 'expo-router';
+// eslint-disable-next-line import/no-unresolved
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import React from 'react';
 
