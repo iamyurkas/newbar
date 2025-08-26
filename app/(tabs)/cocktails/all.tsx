@@ -1,14 +1,14 @@
-import { Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { AddButton } from '@/components/AddButton';
 
 export default function AllCocktailsScreen() {
   const router = useRouter();
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'space-between', padding: 16 }}>
+    <ThemedView style={{ flex: 1, padding: 16 }}>
       <ThemedText type="title">All Cocktails</ThemedText>
-      <Button title="Add" onPress={() => router.push('/add-cocktail')} />
+      <AddButton onPress={() => router.push('/add-cocktail')} />
     </ThemedView>
   );
 }
