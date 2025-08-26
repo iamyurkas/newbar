@@ -6,18 +6,18 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HapticTab } from '@/components/HapticTab';
 import GeneralMenu from '@/components/GeneralMenu';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// eslint-disable-next-line import/no-unresolved
+import { useTheme } from 'react-native-paper';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
 
   return (
     <View style={{ flex: 1 }}>
       <GeneralMenu />
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: colors.primary,
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,

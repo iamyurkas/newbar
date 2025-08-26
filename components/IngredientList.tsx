@@ -2,32 +2,35 @@ import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
-
-const DATA = [
-  {
-    id: '1',
-    name: 'Absinthe',
-    cocktails: 6,
-    color: '#4CAF50',
-  },
-  {
-    id: '2',
-    name: 'Absolut Citron',
-    cocktails: 11,
-    color: '#FFC107',
-  },
-  {
-    id: '3',
-    name: 'Absolut Vodka',
-    cocktails: 11,
-    color: '#03A9F4',
-  },
-];
+// eslint-disable-next-line import/no-unresolved
+import { useTheme } from 'react-native-paper';
 
 export default function IngredientList() {
+  const { colors } = useTheme();
+  const data = [
+    {
+      id: '1',
+      name: 'Absinthe',
+      cocktails: 6,
+      color: colors.primary,
+    },
+    {
+      id: '2',
+      name: 'Absolut Citron',
+      cocktails: 11,
+      color: colors.secondary,
+    },
+    {
+      id: '3',
+      name: 'Absolut Vodka',
+      cocktails: 11,
+      color: colors.tertiary,
+    },
+  ];
+
   return (
     <FlatList
-      data={DATA}
+      data={data}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View style={styles.item}>
@@ -37,12 +40,15 @@ export default function IngredientList() {
           />
           <View style={{ flex: 1 }}>
             <ThemedText>{item.name}</ThemedText>
-            <ThemedText type="default" style={styles.subtitle}>
+            <ThemedText
+              type="default"
+              style={[styles.subtitle, { color: colors.onSurfaceVariant }]}
+            >
               {item.cocktails} cocktails
             </ThemedText>
           </View>
           <View style={[styles.dot, { backgroundColor: item.color }]} />
-          <View style={styles.circle} />
+          <View style={[styles.circle, { borderColor: colors.outline }]} />
         </View>
       )}
     />
@@ -62,7 +68,6 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   subtitle: {
-    color: '#888',
     fontSize: 12,
   },
   dot: {
@@ -76,6 +81,5 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#999',
   },
 });
