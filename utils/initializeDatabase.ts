@@ -33,7 +33,7 @@ export async function initializeDatabase(): Promise<void> {
   });
 
   // Collect assets to generate Metro-friendly map
-  const assetMap: Record<string, any> = {};
+  const assetSet = new Set<string>();
 
   // Insert ingredients
   for (const ing of data.ingredients) {
@@ -54,7 +54,7 @@ export async function initializeDatabase(): Promise<void> {
     } as Ingredient);
 
     if (ing.photoUri) {
-      assetMap[ing.photoUri] = require(`@/${ing.photoUri}`);
+      assetSet.add(ing.photoUri);
     }
   }
 
@@ -88,7 +88,7 @@ export async function initializeDatabase(): Promise<void> {
     } as Cocktail);
 
     if (cocktail.photoUri) {
-      assetMap[cocktail.photoUri] = require(`@/${cocktail.photoUri}`);
+      assetSet.add(cocktail.photoUri);
     }
 
     for (const ci of ingredients) {
@@ -96,7 +96,7 @@ export async function initializeDatabase(): Promise<void> {
     }
   }
 
-  const assetMapEntries = Object.keys(assetMap)
+  const assetMapEntries = Array.from(assetSet)
     .map((uri) => `  "${uri}": require("@/${uri}"),`)
     .join('\n');
 
