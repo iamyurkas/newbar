@@ -16,6 +16,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 
 import { useRouter } from 'expo-router';
+import { useTheme } from 'react-native-paper';
 
 import { INGREDIENT_TAGS } from '@/constants/IngredientTags';
 import {
@@ -27,6 +28,7 @@ import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage'
 
 export default function AddIngredientScreen() {
   const router = useRouter();
+  const theme = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -93,25 +95,45 @@ export default function AddIngredientScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.label}>Name:</Text>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: theme.colors.background },
+        ]}
+      >
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Name:</Text>
         <TextInput
           placeholder="e.g. Lemon juice"
           value={name}
           onChangeText={setName}
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.colors.outline,
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.onSurface,
+            },
+          ]}
+          placeholderTextColor={theme.colors.placeholder}
         />
 
-        <Text style={styles.label}>Photo:</Text>
-        <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Photo:</Text>
+        <TouchableOpacity
+          style={[styles.imageButton, { backgroundColor: theme.colors.surfaceVariant }]}
+          onPress={pickImage}
+        >
           {photoUri ? (
             <Image source={{ uri: photoUri }} style={styles.image} />
           ) : (
-            <Text style={styles.imagePlaceholder}>Tap to select image</Text>
+            <Text
+              style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
+            >
+              Tap to select image
+            </Text>
           )}
         </TouchableOpacity>
 
-        <Text style={styles.label}>Tags:</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Tags:</Text>
         <View style={styles.tagContainer}>
           {tags.map((tag) => (
             <TouchableOpacity
@@ -124,7 +146,7 @@ export default function AddIngredientScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Add Tag:</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Add Tag:</Text>
         <View style={styles.tagContainer}>
           {availableTags
             .filter((t) => !tags.some((tag) => tag.id === t.id))
@@ -139,37 +161,68 @@ export default function AddIngredientScreen() {
             ))}
         </View>
 
-        <Text style={styles.label}>Base Ingredient:</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Base Ingredient:</Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.colors.outline,
+              backgroundColor: theme.colors.surface,
+            },
+          ]}
           onPress={() => setBaseModalVisible(true)}
         >
-          <Text>
+          <Text style={{ color: theme.colors.onSurface }}>
             {baseIngredient ? baseIngredient.name : 'Base ingredient (optional)'}
           </Text>
         </TouchableOpacity>
 
-        <Text style={styles.label}>Description:</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurface }]}>Description:</Text>
         <TextInput
           placeholder="Optional description"
           value={description}
           onChangeText={setDescription}
-          style={[styles.input, { height: 60 }]}
+          style={[
+            styles.input,
+            {
+              height: 60,
+              borderColor: theme.colors.outline,
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.onSurface,
+            },
+          ]}
+          placeholderTextColor={theme.colors.placeholder}
           multiline
         />
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveText}>Save Ingredient</Text>
+        <TouchableOpacity
+          style={[styles.saveButton, { backgroundColor: theme.colors.primary }]}
+          onPress={handleSave}
+        >
+          <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Save Ingredient</Text>
         </TouchableOpacity>
       </ScrollView>
 
       <Modal visible={baseModalVisible} animationType="slide">
-        <View style={{ flex: 1, padding: 24, backgroundColor: 'white' }}>
+        <View
+          style={[
+            styles.modalContainer,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
           <TextInput
             placeholder="Search"
             value={baseSearch}
             onChangeText={setBaseSearch}
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.colors.outline,
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.onSurface,
+              },
+            ]}
+            placeholderTextColor={theme.colors.placeholder}
           />
           <ScrollView style={{ marginTop: 16 }}>
             <TouchableOpacity
@@ -179,8 +232,14 @@ export default function AddIngredientScreen() {
                 setBaseModalVisible(false);
               }}
             >
-              <View style={[styles.baseImage, styles.baseImagePlaceholder]} />
-              <Text style={styles.baseName}>None</Text>
+              <View
+                style={[
+                  styles.baseImage,
+                  styles.baseImagePlaceholder,
+                  { backgroundColor: theme.colors.surfaceVariant },
+                ]}
+              />
+              <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>None</Text>
             </TouchableOpacity>
 
             {baseIngredients
@@ -200,18 +259,27 @@ export default function AddIngredientScreen() {
                     <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
                   ) : (
                     <View
-                      style={[styles.baseImage, styles.baseImagePlaceholder]}
+                      style={[
+                        styles.baseImage,
+                        styles.baseImagePlaceholder,
+                        { backgroundColor: theme.colors.surfaceVariant },
+                      ]}
                     />
                   )}
-                  <Text style={styles.baseName}>{b.name}</Text>
+                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
+                    {b.name}
+                  </Text>
                 </TouchableOpacity>
               ))}
           </ScrollView>
           <TouchableOpacity
-            style={[styles.saveButton, { marginTop: 16 }]}
+            style={[
+              styles.saveButton,
+              { marginTop: 16, backgroundColor: theme.colors.primary },
+            ]}
             onPress={() => setBaseModalVisible(false)}
           >
-            <Text style={styles.saveText}>Close</Text>
+            <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -225,7 +293,6 @@ const BASE_IMAGE_SIZE = 40;
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: 'white',
   },
   label: {
     fontWeight: 'bold',
@@ -233,7 +300,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
     padding: 10,
     marginTop: 8,
     borderRadius: 8,
@@ -242,7 +308,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
-    backgroundColor: '#eee',
     borderRadius: 8,
     overflow: 'hidden',
     justifyContent: 'center',
@@ -255,7 +320,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   imagePlaceholder: {
-    color: '#777',
     textAlign: 'center',
     paddingHorizontal: 10,
   },
@@ -285,21 +349,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
   },
-  baseImagePlaceholder: {
-    backgroundColor: '#eee',
-  },
+  baseImagePlaceholder: {},
   baseName: {
     fontSize: 16,
   },
   saveButton: {
     marginTop: 24,
-    backgroundColor: '#4DABF7',
     paddingVertical: 12,
     alignItems: 'center',
     borderRadius: 8,
   },
   saveText: {
-    color: 'white',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 24,
   },
 });
