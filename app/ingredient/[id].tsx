@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -41,17 +49,43 @@ export default function IngredientViewScreen() {
     load();
   }, [id]);
 
-  const handleUnlinkBranded = async (brandedId: number) => {
-    await unlinkBaseIngredient(brandedId);
-    setBrandedIngredients((prev) => prev.filter((b) => b.id !== brandedId));
+  const handleUnlinkBranded = (branded: Ingredient) => {
+    Alert.alert(
+      'Unlink',
+      `Remove link for "${branded.name}" from this base ingredient?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'OK',
+          onPress: async () => {
+            await unlinkBaseIngredient(branded.id);
+            setBrandedIngredients((prev) =>
+              prev.filter((b) => b.id !== branded.id)
+            );
+          },
+        },
+      ]
+    );
   };
 
-  const handleUnlinkBase = async () => {
-    if (ingredient) {
-      await unlinkBaseIngredient(ingredient.id);
-      setIngredient({ ...ingredient, baseIngredientId: null });
-      setBaseIngredient(null);
-      setBrandedIngredients([]);
+  const handleUnlinkBase = () => {
+    if (ingredient && baseIngredient) {
+      Alert.alert(
+        'Unlink',
+        `Remove link to base ingredient ${baseIngredient.name}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'OK',
+            onPress: async () => {
+              await unlinkBaseIngredient(ingredient.id);
+              setIngredient({ ...ingredient, baseIngredientId: null });
+              setBaseIngredient(null);
+              setBrandedIngredients([]);
+            },
+          },
+        ]
+      );
     }
   };
 
@@ -152,7 +186,7 @@ export default function IngredientViewScreen() {
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Base ingredient:</Text>
             <TouchableOpacity
-              style={styles.brandedRow}
+              style={[styles.brandedRow, { borderColor: theme.colors.outline }]}
               onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
             >
               <View style={styles.baseContainer}>
@@ -175,15 +209,23 @@ export default function IngredientViewScreen() {
                   {baseIngredient.name}
                 </Text>
               </View>
-              <TouchableOpacity
-                style={styles.unlinkButton}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleUnlinkBase();
-                }}
-              >
-                <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
-              </TouchableOpacity>
+              <View style={styles.rowRight}>
+                <TouchableOpacity
+                  style={styles.unlinkButton}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleUnlinkBase();
+                  }}
+                >
+                  <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
+                </TouchableOpacity>
+                <MaterialIcons
+                  name="chevron-right"
+                  size={20}
+                  color={theme.colors.onSurfaceVariant}
+                  style={styles.arrowIcon}
+                />
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -193,7 +235,7 @@ export default function IngredientViewScreen() {
             {brandedIngredients.map((b) => (
               <TouchableOpacity
                 key={b.id}
-                style={styles.brandedRow}
+                style={[styles.brandedRow, { borderColor: theme.colors.outline }]}
                 onPress={() => router.push(`/ingredient/${b.id}`)}
               >
                 <View style={styles.baseContainer}>
@@ -216,15 +258,23 @@ export default function IngredientViewScreen() {
                     {b.name}
                   </Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.unlinkButton}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleUnlinkBranded(b.id);
-                  }}
-                >
-                  <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
-                </TouchableOpacity>
+                <View style={styles.rowRight}>
+                  <TouchableOpacity
+                    style={styles.unlinkButton}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleUnlinkBranded(b);
+                    }}
+                  >
+                    <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
+                  </TouchableOpacity>
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={20}
+                    color={theme.colors.onSurfaceVariant}
+                    style={styles.arrowIcon}
+                  />
+                </View>
               </TouchableOpacity>
             ))}
         </View>
@@ -321,7 +371,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 8,
     marginBottom: 8,
+  },
+  rowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  arrowIcon: {
+    marginLeft: 4,
   },
   unlinkButton: {
     padding: 8,
