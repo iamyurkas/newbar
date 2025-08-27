@@ -97,6 +97,10 @@ export async function getBaseIngredients(): Promise<Ingredient[]> {
   return queryIngredients('WHERE baseIngredientId IS NULL');
 }
 
+export async function getIngredientsInBar(): Promise<Ingredient[]> {
+  return queryIngredients('WHERE inBar = 1');
+}
+
 export async function getIngredientById(id: number): Promise<Ingredient | null> {
   const rows = await db.getAllAsync<IngredientRow>(
     'SELECT * FROM ingredients WHERE id = ? LIMIT 1',
