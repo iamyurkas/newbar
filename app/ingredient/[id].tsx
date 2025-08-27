@@ -232,52 +232,62 @@ export default function IngredientViewScreen() {
         {!ingredient.baseIngredientId && brandedIngredients.length > 0 && (
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Branded ingredients:</Text>
-            {brandedIngredients.map((b) => (
-              <TouchableOpacity
-                key={b.id}
-                style={[styles.brandedRow, { borderColor: theme.colors.outline }]}
-                onPress={() => router.push(`/ingredient/${b.id}`)}
-              >
-                <View style={styles.baseContainer}>
-                  {b.photoUri ? (
-                    <Image
-                      source={{ uri: b.photoUri }}
-                      style={styles.baseImage}
-                      resizeMode="contain"
+            <View
+              style={[styles.brandedBlock, { borderColor: theme.colors.outline }]}
+            >
+              {brandedIngredients.map((b, idx) => (
+                <TouchableOpacity
+                  key={b.id}
+                  style={[
+                    styles.brandedItemRow,
+                    idx < brandedIngredients.length - 1 && {
+                      borderBottomWidth: 1,
+                      borderColor: theme.colors.outline,
+                    },
+                  ]}
+                  onPress={() => router.push(`/ingredient/${b.id}`)}
+                >
+                  <View style={styles.baseContainer}>
+                    {b.photoUri ? (
+                      <Image
+                        source={{ uri: b.photoUri }}
+                        style={styles.baseImage}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <View
+                        style={[
+                          styles.baseImage,
+                          styles.baseImagePlaceholder,
+                          { backgroundColor: theme.colors.placeholder },
+                        ]}
+                      />
+                    )}
+                    <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
+                      {b.name}
+                    </Text>
+                  </View>
+                  <View style={styles.rowRight}>
+                    <TouchableOpacity
+                      style={styles.unlinkButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleUnlinkBranded(b);
+                      }}
+                    >
+                      <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
+                    </TouchableOpacity>
+                    <MaterialIcons
+                      name="chevron-right"
+                      size={20}
+                      color={theme.colors.onSurfaceVariant}
+                      style={styles.arrowIcon}
                     />
-                  ) : (
-                    <View
-                      style={[
-                        styles.baseImage,
-                        styles.baseImagePlaceholder,
-                        { backgroundColor: theme.colors.placeholder },
-                      ]}
-                    />
-                  )}
-                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
-                    {b.name}
-                  </Text>
-                </View>
-                <View style={styles.rowRight}>
-                  <TouchableOpacity
-                    style={styles.unlinkButton}
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      handleUnlinkBranded(b);
-                    }}
-                  >
-                    <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
-                  </TouchableOpacity>
-                  <MaterialIcons
-                    name="chevron-right"
-                    size={20}
-                    color={theme.colors.onSurfaceVariant}
-                    style={styles.arrowIcon}
-                  />
-                </View>
-              </TouchableOpacity>
-            ))}
-        </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
         )}
         {ingredient.description ? (
           <Text style={[styles.description, { color: theme.colors.onSurface }]}>
@@ -375,6 +385,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 8,
+  },
+  brandedBlock: {
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  brandedItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 8,
   },
   rowRight: {
     flexDirection: 'row',
