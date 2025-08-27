@@ -22,6 +22,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   getBaseIngredients,
   getIngredientById,
+  getBrandedIngredients,
   updateIngredient,
   deleteIngredient,
   type Ingredient,
@@ -41,6 +42,7 @@ export default function EditIngredientScreen() {
   const [baseIngredients, setBaseIngredients] = useState<Ingredient[]>([]);
   const [baseSearch, setBaseSearch] = useState('');
   const [baseModalVisible, setBaseModalVisible] = useState(false);
+  const [hasLinkedIngredients, setHasLinkedIngredients] = useState(false);
   const searchRef = useRef<TextInput>(null);
   const [alert, setAlert] = useState<{ title: string; message: string } | null>(
     null
@@ -70,10 +72,14 @@ export default function EditIngredientScreen() {
           setTags(ing.tags);
           setInBar(ing.inBar ?? false);
           setInShoppingList(ing.inShoppingList ?? false);
+          const branded = await getBrandedIngredients(ing.id);
+          setHasLinkedIngredients(branded.length > 0);
           if (ing.baseIngredientId) {
             const base = bases.find((b) => b.id === ing.baseIngredientId);
             setBaseIngredient(base ?? null);
           }
+        } else {
+          setHasLinkedIngredients(false);
         }
       }
     };
@@ -236,46 +242,64 @@ export default function EditIngredientScreen() {
           </View>
 
           <Text style={[styles.label, { color: theme.colors.onSurface }]}>Base Ingredient:</Text>
-          <TouchableOpacity
-            style={[
-              styles.input,
-              {
-                height: INPUT_HEIGHT,
-                borderColor: theme.colors.outline,
-                backgroundColor: theme.colors.surface,
-                flexDirection: 'row',
-                alignItems: 'center',
-              },
-            ]}
-            onPress={() => setBaseModalVisible(true)}
-          >
-            {baseIngredient ? (
-              <View style={styles.baseFieldContent}>
-                {baseIngredient.photoUri ? (
-                  <Image
-                    source={{ uri: baseIngredient.photoUri }}
-                    style={styles.baseFieldImage}
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <View
-                    style={[
-                      styles.baseFieldImage,
-                      styles.baseImagePlaceholder,
-                      { backgroundColor: theme.colors.placeholder },
-                    ]}
-                  />
-                )}
-                <Text style={{ color: theme.colors.onBackground }}>
-                  {baseIngredient.name}
-                </Text>
-              </View>
-            ) : (
-              <Text style={{ color: theme.colors.placeholder }}>
-                Base ingredient (optional)
+          {hasLinkedIngredients ? (
+            <View
+              style={[
+                styles.input,
+                {
+                  height: INPUT_HEIGHT,
+                  borderColor: theme.colors.outline,
+                  backgroundColor: theme.colors.surface,
+                  justifyContent: 'center',
+                },
+              ]}
+            >
+              <Text style={{ color: theme.colors.onSurfaceVariant }}>
+                Cannot link to a base ingredient because other ingredients are linked to this one.
               </Text>
-            )}
-          </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.input,
+                {
+                  height: INPUT_HEIGHT,
+                  borderColor: theme.colors.outline,
+                  backgroundColor: theme.colors.surface,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                },
+              ]}
+              onPress={() => setBaseModalVisible(true)}
+            >
+              {baseIngredient ? (
+                <View style={styles.baseFieldContent}>
+                  {baseIngredient.photoUri ? (
+                    <Image
+                      source={{ uri: baseIngredient.photoUri }}
+                      style={styles.baseFieldImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.baseFieldImage,
+                        styles.baseImagePlaceholder,
+                        { backgroundColor: theme.colors.placeholder },
+                      ]}
+                    />
+                  )}
+                  <Text style={{ color: theme.colors.onBackground }}>
+                    {baseIngredient.name}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={{ color: theme.colors.placeholder }}>
+                  Base ingredient (optional)
+                </Text>
+              )}
+            </TouchableOpacity>
+          )}
 
           <Text style={[styles.label, { color: theme.colors.onSurface }]}>Description:</Text>
           <TextInput
