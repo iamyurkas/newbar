@@ -172,7 +172,13 @@ export default function AddIngredientScreen() {
           ]}
           onPress={() => setBaseModalVisible(true)}
         >
-          <Text style={{ color: theme.colors.onSurface }}>
+          <Text
+            style={{
+              color: baseIngredient
+                ? theme.colors.onBackground
+                : theme.colors.placeholder,
+            }}
+          >
             {baseIngredient ? baseIngredient.name : 'Base ingredient (optional)'}
           </Text>
         </TouchableOpacity>
