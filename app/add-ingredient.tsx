@@ -10,18 +10,20 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
-
-// eslint-disable-next-line import/no-unresolved
-import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useRouter } from 'expo-router';
 
 import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
 import { INGREDIENT_TAGS } from '@/constants/IngredientTags';
-import { addIngredient } from '@/storage/ingredientsStorage';
+import {
+  addIngredient,
+  getBaseIngredients,
+  type Ingredient,
+} from '@/storage/ingredientsStorage';
 
 export default function AddIngredientScreen() {
   const router = useRouter();
@@ -30,13 +32,19 @@ export default function AddIngredientScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [tags, setTags] = useState<IngredientTag[]>([]);
   const [availableTags, setAvailableTags] = useState<IngredientTag[]>([]);
+  const [baseIngredient, setBaseIngredient] = useState<Ingredient | null>(null);
+  const [baseIngredients, setBaseIngredients] = useState<Ingredient[]>([]);
+  const [baseSearch, setBaseSearch] = useState('');
+  const [baseModalVisible, setBaseModalVisible] = useState(false);
 
   useEffect(() => {
-    const loadTags = async () => {
+    const load = async () => {
       const custom = await getAllTags();
       setAvailableTags([...INGREDIENT_TAGS, ...custom]);
+      const bases = await getBaseIngredients();
+      setBaseIngredients(bases);
     };
-    loadTags();
+    load();
   }, []);
 
   const toggleTag = (tag: IngredientTag) => {
@@ -68,7 +76,14 @@ export default function AddIngredientScreen() {
       return;
     }
     const id = Date.now();
-    await addIngredient({ id, name: name.trim(), description, photoUri, tags });
+    await addIngredient({
+      id,
+      name: name.trim(),
+      description,
+      photoUri,
+      tags,
+      baseIngredientId: baseIngredient?.id,
+    });
     router.replace('/ingredients/all');
   };
 
@@ -124,6 +139,16 @@ export default function AddIngredientScreen() {
             ))}
         </View>
 
+        <Text style={styles.label}>Base Ingredient:</Text>
+        <TouchableOpacity
+          style={styles.input}
+          onPress={() => setBaseModalVisible(true)}
+        >
+          <Text>
+            {baseIngredient ? baseIngredient.name : 'Optional'}
+          </Text>
+        </TouchableOpacity>
+
         <Text style={styles.label}>Description:</Text>
         <TextInput
           placeholder="Optional description"
@@ -137,6 +162,50 @@ export default function AddIngredientScreen() {
           <Text style={styles.saveText}>Save Ingredient</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal visible={baseModalVisible} animationType="slide">
+        <View style={{ flex: 1, padding: 24, backgroundColor: 'white' }}>
+          <TextInput
+            placeholder="Search"
+            value={baseSearch}
+            onChangeText={setBaseSearch}
+            style={styles.input}
+          />
+          <ScrollView style={{ marginTop: 16 }}>
+            {baseIngredients
+              .filter((b) =>
+                b.name.toLowerCase().includes(baseSearch.toLowerCase())
+              )
+              .map((b) => (
+                <TouchableOpacity
+                  key={b.id}
+                  style={{ paddingVertical: 8 }}
+                  onPress={() => {
+                    setBaseIngredient(b);
+                    setBaseModalVisible(false);
+                  }}
+                >
+                  <Text>{b.name}</Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={[styles.saveButton, { marginTop: 16 }]}
+            onPress={() => {
+              setBaseIngredient(null);
+              setBaseModalVisible(false);
+            }}
+          >
+            <Text style={styles.saveText}>Clear</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.saveButton, { marginTop: 12 }]}
+            onPress={() => setBaseModalVisible(false)}
+          >
+            <Text style={styles.saveText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

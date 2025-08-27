@@ -10,11 +10,14 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllIngredients, type Ingredient } from '@/storage/ingredientsStorage';
+// eslint-disable-next-line import/no-unresolved
+import { useTheme } from 'react-native-paper';
 
 export default function AllIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { colors } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
@@ -48,7 +51,12 @@ export default function AllIngredientsScreen() {
 
   const renderItem = ({ item }: { item: Ingredient }) => (
     <TouchableOpacity
-      style={styles.item}
+      style={[
+        styles.item,
+        item.baseIngredientId
+          ? { borderLeftWidth: 4, borderLeftColor: colors.primary, paddingLeft: 8 }
+          : null,
+      ]}
       onPress={() => router.push(`/ingredient/${item.id}`)}
     >
       {item.photoUri ? (
