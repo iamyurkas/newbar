@@ -97,8 +97,13 @@ export async function getBaseIngredients(): Promise<Ingredient[]> {
   return queryIngredients('WHERE baseIngredientId IS NULL');
 }
 
+
 export async function getShoppingListIngredients(): Promise<Ingredient[]> {
   return queryIngredients('WHERE inShoppingList = 1');
+}
+
+export async function getIngredientsInBar(): Promise<Ingredient[]> {
+  return queryIngredients('WHERE inBar = 1');
 }
 
 export async function getIngredientById(id: number): Promise<Ingredient | null> {
