@@ -92,16 +92,16 @@ export default function IngredientViewScreen() {
   const handleToggleInBar = async () => {
     if (ingredient) {
       const newValue = !ingredient.inBar;
-      await setIngredientInBar(ingredient.id, newValue);
       setIngredient({ ...ingredient, inBar: newValue });
+      await setIngredientInBar(ingredient.id, newValue);
     }
   };
 
   const handleToggleShoppingList = async () => {
     if (ingredient) {
       const newValue = !ingredient.inShoppingList;
-      await setIngredientInShoppingList(ingredient.id, newValue);
       setIngredient({ ...ingredient, inShoppingList: newValue });
+      await setIngredientInShoppingList(ingredient.id, newValue);
     }
   };
 
