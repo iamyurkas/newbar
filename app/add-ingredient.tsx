@@ -11,7 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+// eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
+// eslint-disable-next-line import/no-unresolved
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 

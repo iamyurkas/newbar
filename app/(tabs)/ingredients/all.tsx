@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllIngredients, type Ingredient } from '@/storage/ingredientsStorage';
 
 export default function AllIngredientsScreen() {
@@ -16,14 +16,26 @@ export default function AllIngredientsScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const load = async () => {
-      const data = await getAllIngredients();
-      setIngredients(data);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const load = async () => {
+        setLoading(true);
+        const data = await getAllIngredients();
+        if (isActive) {
+          setIngredients(data);
+          setLoading(false);
+        }
+      };
+
+      load();
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   if (loading) {
     return (
