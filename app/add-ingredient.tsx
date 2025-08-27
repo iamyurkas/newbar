@@ -11,8 +11,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-// eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 
 import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
@@ -50,11 +50,18 @@ export default function AddIngredientScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
       quality: 0.7,
     });
     if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
+      const resized = await ImageManipulator.manipulateAsync(
+        result.assets[0].uri,
+        [{ resize: { width: 150, height: 150 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      setPhotoUri(resized.uri);
     }
   };
 
@@ -137,7 +144,7 @@ export default function AddIngredientScreen() {
   );
 }
 
-const IMAGE_SIZE = 120;
+const IMAGE_SIZE = 150;
 
 const styles = StyleSheet.create({
   container: {
