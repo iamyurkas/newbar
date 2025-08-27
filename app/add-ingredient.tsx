@@ -14,10 +14,10 @@ import {
   View,
 } from 'react-native';
 
+import ConfirmDialog from '@/components/ConfirmDialog';
+import IngredientHeader from '@/components/IngredientHeader';
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
-import IngredientHeader from '@/components/IngredientHeader';
-import ConfirmDialog from '@/components/ConfirmDialog';
 
 import {
   addIngredient,
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: '10%',
     marginTop: 50,
-    marginBottom: 10,
+    marginBottom: 50,
     padding: 24,
     borderRadius: 8,
   },
