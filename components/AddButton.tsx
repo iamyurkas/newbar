@@ -10,9 +10,9 @@ export function AddButton({ onPress }: AddButtonProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.button, { backgroundColor: theme.colors.tertiary }]}
+      style={[styles.button, { backgroundColor: theme.colors.primaryContainer }]}
     >
-      <Text style={[styles.plus, { color: theme.colors.onPrimary }]}>+</Text>
+      <Text style={[styles.plus, { color: theme.colors.tertiary }]}>+</Text>
     </Pressable>
   );
 }
@@ -27,9 +27,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   plus: {
-    fontSize: 40,
+    fontSize: 36,
     lineHeight: 40,
   },
 });
