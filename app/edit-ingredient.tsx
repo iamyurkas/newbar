@@ -2,6 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -438,7 +439,10 @@ export default function EditIngredientScreen() {
                   ]}
                   placeholderTextColor={theme.colors.placeholder}
                 />
-                <ScrollView style={{ marginTop: 16 }}>
+                <ScrollView
+                  style={{ marginTop: 16 }}
+                  keyboardShouldPersistTaps="handled"
+                >
                   {baseIngredients
                     .filter((b) =>
                       b.name.toLowerCase().includes(baseSearch.toLowerCase())
@@ -448,6 +452,7 @@ export default function EditIngredientScreen() {
                         key={b.id}
                         style={styles.baseItem}
                         onPress={() => {
+                          Keyboard.dismiss();
                           setBaseIngredient(b);
                           setBaseModalVisible(false);
                         }}
