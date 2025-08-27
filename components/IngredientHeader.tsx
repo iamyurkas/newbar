@@ -9,21 +9,29 @@ const HEADER_HEIGHT = 56;
 type Props = {
   title: string;
   onEdit?: () => void;
+  onDelete?: () => void;
 };
 
-export default function IngredientHeader({ title, onEdit }: Props) {
+export default function IngredientHeader({ title, onEdit, onDelete }: Props) {
   const theme = useTheme();
   const router = useRouter();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
         <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
-      {onEdit ? (
-        <TouchableOpacity onPress={onEdit} style={styles.iconBtn}>
-          <MaterialIcons name="edit" size={24} color={theme.colors.onSurface} />
+      {onEdit || onDelete ? (
+        <TouchableOpacity
+          onPress={onEdit ?? onDelete}
+          style={styles.iconBtn}
+        >
+          <MaterialIcons
+            name={onEdit ? 'edit' : 'delete'}
+            size={24}
+            color={theme.colors.onSurface}
+          />
         </TouchableOpacity>
       ) : (
         <View style={styles.iconBtn} />

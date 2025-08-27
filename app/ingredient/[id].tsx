@@ -118,8 +118,8 @@ export default function IngredientViewScreen() {
         options={{
           header: () => (
             <IngredientHeader
-              title="Edit ingredient"
-              onEdit={() => router.push(`/add-ingredient?id=${ingredient.id}`)}
+              title={ingredient.name}
+              onEdit={() => router.push(`/edit-ingredient?id=${ingredient.id}`)}
             />
           ),
         }}
