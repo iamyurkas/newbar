@@ -108,7 +108,7 @@ function IngredientRow({
               style={[
                 styles.image,
                 styles.placeholder,
-                { backgroundColor: theme.colors.surface },
+                { backgroundColor: theme.colors.placeholder },
               ]}
             >
               <Text

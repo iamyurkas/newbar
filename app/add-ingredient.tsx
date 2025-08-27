@@ -126,7 +126,7 @@ export default function AddIngredientScreen() {
 
         <Text style={[styles.label, { color: theme.colors.onSurface }]}>Photo:</Text>
         <TouchableOpacity
-          style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
+          style={[styles.imageButton, { backgroundColor: photoUri ? theme.colors.surface : theme.colors.placeholder }]}
           onPress={pickImage}
         >
           {photoUri ? (
@@ -198,7 +198,7 @@ export default function AddIngredientScreen() {
                   style={[
                     styles.baseFieldImage,
                     styles.baseImagePlaceholder,
-                    { backgroundColor: theme.colors.surfaceVariant },
+                    { backgroundColor: theme.colors.placeholder },
                   ]}
                 />
               )}
@@ -274,7 +274,7 @@ export default function AddIngredientScreen() {
                 style={[
                   styles.baseImage,
                   styles.baseImagePlaceholder,
-                  { backgroundColor: theme.colors.surfaceVariant },
+                  { backgroundColor: theme.colors.placeholder },
                 ]}
               />
               <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>None</Text>
@@ -300,7 +300,7 @@ export default function AddIngredientScreen() {
                       style={[
                         styles.baseImage,
                         styles.baseImagePlaceholder,
-                        { backgroundColor: theme.colors.surfaceVariant },
+                        { backgroundColor: theme.colors.placeholder },
                       ]}
                     />
                   )}

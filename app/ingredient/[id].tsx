@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import IngredientHeader from '@/components/IngredientHeader';
 import {
@@ -38,9 +39,18 @@ export default function IngredientViewScreen() {
     load();
   }, [id]);
 
-  const handleUnlink = async (brandedId: number) => {
+  const handleUnlinkBranded = async (brandedId: number) => {
     await unlinkBaseIngredient(brandedId);
     setBrandedIngredients((prev) => prev.filter((b) => b.id !== brandedId));
+  };
+
+  const handleUnlinkBase = async () => {
+    if (ingredient) {
+      await unlinkBaseIngredient(ingredient.id);
+      setIngredient({ ...ingredient, baseIngredientId: null });
+      setBaseIngredient(null);
+      setBrandedIngredients([]);
+    }
   };
 
   if (!ingredient) {
@@ -75,7 +85,7 @@ export default function IngredientViewScreen() {
           />
         ) : (
           <View
-            style={[styles.imagePlaceholder, { backgroundColor: theme.colors.surfaceVariant }]}
+            style={[styles.imagePlaceholder, { backgroundColor: theme.colors.placeholder }]}
           >
             <Text style={[styles.noImageText, { color: theme.colors.onSurfaceVariant }]}>No image</Text>
           </View>
@@ -92,29 +102,34 @@ export default function IngredientViewScreen() {
         {ingredient.baseIngredientId && baseIngredient && (
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Base ingredient:</Text>
-            <TouchableOpacity
-              style={styles.baseContainer}
-              onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
-            >
-              {baseIngredient.photoUri ? (
-                <Image
-                  source={{ uri: baseIngredient.photoUri }}
-                  style={styles.baseImage}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View
-                  style={[
-                    styles.baseImage,
-                    styles.baseImagePlaceholder,
-                    { backgroundColor: theme.colors.surfaceVariant },
-                  ]}
-                />
-              )}
-              <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
-                {baseIngredient.name}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.brandedRow}>
+              <TouchableOpacity
+                style={styles.baseContainer}
+                onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
+              >
+                {baseIngredient.photoUri ? (
+                  <Image
+                    source={{ uri: baseIngredient.photoUri }}
+                    style={styles.baseImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.baseImage,
+                      styles.baseImagePlaceholder,
+                      { backgroundColor: theme.colors.placeholder },
+                    ]}
+                  />
+                )}
+                <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
+                  {baseIngredient.name}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.unlinkButton} onPress={handleUnlinkBase}>
+                <MaterialIcons name="link-off" size={20} color={theme.colors.primary} />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         {!ingredient.baseIngredientId && (
@@ -137,23 +152,23 @@ export default function IngredientViewScreen() {
                       style={[
                         styles.baseImage,
                         styles.baseImagePlaceholder,
-                        { backgroundColor: theme.colors.surfaceVariant },
+                        { backgroundColor: theme.colors.placeholder },
                       ]}
                     />
                   )}
-                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
+                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
                     {b.name}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.unlinkButton}
-                  onPress={() => handleUnlink(b.id)}
+                  onPress={() => handleUnlinkBranded(b.id)}
                 >
-                  <Text style={[styles.unlinkText, { color: theme.colors.primary }]}>Unlink</Text>
+                  <MaterialIcons name="link-off" size={20} color={theme.colors.primary} />
                 </TouchableOpacity>
               </View>
             ))}
-          </View>
+        </View>
         )}
         {ingredient.description ? (
           <Text style={[styles.description, { color: theme.colors.onSurface }]}>
@@ -225,6 +240,7 @@ const styles = StyleSheet.create({
   baseLabel: {
     fontSize: 16,
     marginBottom: 8,
+    fontWeight: 'bold',
   },
   baseContainer: {
     flexDirection: 'row',
@@ -250,8 +266,5 @@ const styles = StyleSheet.create({
   },
   unlinkButton: {
     padding: 8,
-  },
-  unlinkText: {
-    fontSize: 14,
   },
 });
