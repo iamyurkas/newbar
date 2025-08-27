@@ -16,7 +16,7 @@ import {
 
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
-import AddIngredientHeader from '@/components/AddIngredientHeader';
+import IngredientHeader from '@/components/IngredientHeader';
 
 import {
   addIngredient,
@@ -93,7 +93,9 @@ export default function AddIngredientScreen() {
   };
   return (
     <>
-      <Stack.Screen options={{ header: () => <AddIngredientHeader /> }} />
+      <Stack.Screen
+        options={{ header: () => <IngredientHeader title="Add ingredient" /> }}
+      />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

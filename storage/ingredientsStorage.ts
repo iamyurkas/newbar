@@ -74,3 +74,14 @@ export async function getAllIngredients(): Promise<Ingredient[]> {
 export async function getBaseIngredients(): Promise<Ingredient[]> {
   return queryIngredients('WHERE baseIngredientId IS NULL');
 }
+
+export async function getIngredientById(id: number): Promise<Ingredient | null> {
+  const rows = await db.getAllAsync<IngredientRow>(
+    'SELECT * FROM ingredients WHERE id = ? LIMIT 1',
+    id
+  );
+  if (rows.length === 0) {
+    return null;
+  }
+  return mapRowToIngredient(rows[0]);
+}
