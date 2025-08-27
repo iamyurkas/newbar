@@ -31,3 +31,22 @@ export async function addIngredient(ingredient: Ingredient): Promise<void> {
     JSON.stringify(ingredient.tags),
   );
 }
+
+type IngredientRow = {
+  id: number;
+  name: string;
+  description: string | null;
+  photoUri: string | null;
+  tags: string | null;
+};
+
+export async function getAllIngredients(): Promise<Ingredient[]> {
+  const rows = await db.getAllAsync<IngredientRow>('SELECT * FROM ingredients');
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description ?? undefined,
+    photoUri: row.photoUri ?? undefined,
+    tags: row.tags ? (JSON.parse(row.tags) as IngredientTag[]) : [],
+  }));
+}
