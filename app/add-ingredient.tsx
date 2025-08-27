@@ -84,7 +84,7 @@ export default function AddIngredientScreen() {
     }
     const id = Date.now();
     await addIngredient({ id, name: name.trim(), description, photoUri, tags });
-    router.back();
+    router.replace('/ingredients/all');
   };
 
   return (
