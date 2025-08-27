@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: '10%',
     marginTop: 50,
-    marginBottom: '30%',
+    marginBottom: '10%',
     padding: 24,
     borderRadius: 8,
   },
