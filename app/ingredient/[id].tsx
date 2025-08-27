@@ -21,6 +21,7 @@ import {
   setIngredientInShoppingList,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import { getAssetSource } from '@/storage/assetMap';
 
 export default function IngredientViewScreen() {
   const { id } = useLocalSearchParams();
@@ -130,7 +131,7 @@ export default function IngredientViewScreen() {
         <Text style={[styles.name, { color: theme.colors.onSurface }]}>Ingredient details</Text>
         {ingredient.photoUri ? (
           <Image
-            source={{ uri: ingredient.photoUri }}
+            source={getAssetSource(ingredient.photoUri)}
             style={styles.image}
             resizeMode="contain"
           />
@@ -191,7 +192,7 @@ export default function IngredientViewScreen() {
               <View style={styles.baseContainer}>
                 {baseIngredient.photoUri ? (
                   <Image
-                    source={{ uri: baseIngredient.photoUri }}
+                    source={getAssetSource(baseIngredient.photoUri)}
                     style={styles.baseImage}
                     resizeMode="contain"
                   />
@@ -249,7 +250,7 @@ export default function IngredientViewScreen() {
                   <View style={styles.baseContainer}>
                     {b.photoUri ? (
                       <Image
-                        source={{ uri: b.photoUri }}
+                        source={getAssetSource(b.photoUri)}
                         style={styles.baseImage}
                         resizeMode="contain"
                       />

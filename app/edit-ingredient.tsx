@@ -27,6 +27,7 @@ import {
   type Ingredient,
 } from '@/storage/ingredientsStorage';
 import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
+import { getAssetSource } from '@/storage/assetMap';
 
 export default function EditIngredientScreen() {
   const router = useRouter();
@@ -197,7 +198,7 @@ export default function EditIngredientScreen() {
             onPress={pickImage}
           >
             {photoUri ? (
-              <Image source={{ uri: photoUri }} style={styles.image} />
+              <Image source={getAssetSource(photoUri)} style={styles.image} />
             ) : (
               <Text
                 style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
@@ -253,7 +254,7 @@ export default function EditIngredientScreen() {
               <View style={styles.baseFieldContent}>
                 {baseIngredient.photoUri ? (
                   <Image
-                    source={{ uri: baseIngredient.photoUri }}
+                    source={getAssetSource(baseIngredient.photoUri)}
                     style={styles.baseFieldImage}
                     resizeMode="contain"
                   />
@@ -351,7 +352,7 @@ export default function EditIngredientScreen() {
                         }}
                       >
                         {b.photoUri ? (
-                          <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
+                          <Image source={getAssetSource(b.photoUri)} style={styles.baseImage} />
                         ) : (
                           <View
                             style={[

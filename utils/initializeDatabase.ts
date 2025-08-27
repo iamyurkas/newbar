@@ -1,7 +1,14 @@
 import data from '@/assets/data/data.json';
 import { addIngredient, getAllIngredients, type Ingredient } from '@/storage/ingredientsStorage';
-import { addCocktail, getAllCocktails, type Cocktail, type CocktailIngredient } from '@/storage/cocktailsStorage';
+import {
+  addCocktail,
+  getAllCocktails,
+  type Cocktail,
+  type CocktailIngredient,
+} from '@/storage/cocktailsStorage';
 import { addCocktailIngredient } from '@/storage/cocktailIngredientsStorage';
+import fs from 'fs';
+import path from 'path';
 
 // Ensure static tables are populated
 import '@/storage/ingredientTagsStorage';
@@ -25,6 +32,9 @@ export async function initializeDatabase(): Promise<void> {
     ingredientIdMap.set(String(ing.id), index + 1);
   });
 
+  // Collect assets to generate Metro-friendly map
+  const assetMap: Record<string, any> = {};
+
   // Insert ingredients
   for (const ing of data.ingredients) {
     const newId = ingredientIdMap.get(String(ing.id))!;
@@ -42,6 +52,10 @@ export async function initializeDatabase(): Promise<void> {
       inBar: false,
       inShoppingList: false,
     } as Ingredient);
+
+    if (ing.photoUri) {
+      assetMap[ing.photoUri] = require(`@/${ing.photoUri}`);
+    }
   }
 
   // Insert cocktails
@@ -73,8 +87,20 @@ export async function initializeDatabase(): Promise<void> {
       photoUri: cocktail.photoUri ?? null,
     } as Cocktail);
 
+    if (cocktail.photoUri) {
+      assetMap[cocktail.photoUri] = require(`@/${cocktail.photoUri}`);
+    }
+
     for (const ci of ingredients) {
       await addCocktailIngredient(cocktail.id, ci.ingredientId);
     }
   }
+
+  const assetMapEntries = Object.keys(assetMap)
+    .map((uri) => `  "${uri}": require("@/${uri}"),`)
+    .join('\n');
+
+  const content = `export const assetMap: Record<string, any> = {\n${assetMapEntries}\n};\n`;
+  const target = path.join(__dirname, '..', 'assets', 'assetMap.ts');
+  fs.writeFileSync(target, content);
 }

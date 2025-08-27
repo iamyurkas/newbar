@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable, StyleSheet, Platform } from 'react-native
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { withAlpha } from '../utils/color';
+import { getAssetSource } from '@/storage/assetMap';
 
 export const IMAGE_SIZE = 50;
 const ROW_VERTICAL = 8;
@@ -97,9 +98,9 @@ function IngredientRow({
           style={({ pressed }) => [styles.leftTapZone, pressed && styles.pressedLeft]}
           hitSlop={{ top: 4, bottom: 4, left: 0, right: 8 }}
         >
-          {photoUri ? (
+          {getAssetSource(photoUri) ? (
             <Image
-              source={{ uri: photoUri }}
+              source={getAssetSource(photoUri)}
               style={[styles.image, { backgroundColor: theme.colors.background }]}
               resizeMode="contain"
             />
