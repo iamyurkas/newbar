@@ -29,6 +29,32 @@ try {
   // ignore if column already exists
 }
 
+type IngredientRow = {
+  id: number;
+  name: string;
+  description: string | null;
+  photoUri: string | null;
+  tags: string | null;
+  baseIngredientId: number | null;
+};
+
+function mapRowToIngredient(row: IngredientRow): Ingredient {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? undefined,
+    photoUri: row.photoUri ?? undefined,
+    tags: row.tags ? (JSON.parse(row.tags) as IngredientTag[]) : [],
+    baseIngredientId: row.baseIngredientId ?? undefined,
+  };
+}
+
+async function queryIngredients(whereClause?: string): Promise<Ingredient[]> {
+  const query = `SELECT * FROM ingredients${whereClause ? ` ${whereClause}` : ''}`;
+  const rows = await db.getAllAsync<IngredientRow>(query);
+  return rows.map(mapRowToIngredient);
+}
+
 export async function addIngredient(ingredient: Ingredient): Promise<void> {
   await db.runAsync(
     'INSERT INTO ingredients (id, name, description, photoUri, tags, baseIngredientId) VALUES (?, ?, ?, ?, ?, ?)',
@@ -41,37 +67,10 @@ export async function addIngredient(ingredient: Ingredient): Promise<void> {
   );
 }
 
-type IngredientRow = {
-  id: number;
-  name: string;
-  description: string | null;
-  photoUri: string | null;
-  tags: string | null;
-  baseIngredientId: number | null;
-};
-
 export async function getAllIngredients(): Promise<Ingredient[]> {
-  const rows = await db.getAllAsync<IngredientRow>('SELECT * FROM ingredients');
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    description: row.description ?? undefined,
-    photoUri: row.photoUri ?? undefined,
-    tags: row.tags ? (JSON.parse(row.tags) as IngredientTag[]) : [],
-    baseIngredientId: row.baseIngredientId ?? undefined,
-  }));
+  return queryIngredients();
 }
 
 export async function getBaseIngredients(): Promise<Ingredient[]> {
-  const rows = await db.getAllAsync<IngredientRow>(
-    'SELECT * FROM ingredients WHERE baseIngredientId IS NULL'
-  );
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    description: row.description ?? undefined,
-    photoUri: row.photoUri ?? undefined,
-    tags: row.tags ? (JSON.parse(row.tags) as IngredientTag[]) : [],
-    baseIngredientId: row.baseIngredientId ?? undefined,
-  }));
+  return queryIngredients('WHERE baseIngredientId IS NULL');
 }
