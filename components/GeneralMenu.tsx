@@ -4,7 +4,11 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 // eslint-disable-next-line import/no-unresolved
 import { useTheme } from 'react-native-paper';
 
-export default function GeneralMenu() {
+interface GeneralMenuProps {
+  onMenuPress?: () => void;
+}
+
+export default function GeneralMenu({ onMenuPress }: GeneralMenuProps) {
   const { colors } = useTheme();
 
   const tintColor = colors.primary;
@@ -14,7 +18,7 @@ export default function GeneralMenu() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}> 
-      <Pressable onPress={() => {}}>
+      <Pressable onPress={onMenuPress}>
         <MaterialIcons name="menu" size={24} color={tintColor} />
       </Pressable>
       <TextInput
