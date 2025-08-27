@@ -4,19 +4,23 @@ import { Platform, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HapticTab } from '@/components/HapticTab';
+import HeaderWithSearch from '@/components/HeaderWithSearch';
 import GeneralMenu from '@/components/GeneralMenu';
-import SideMenu from '@/components/SideMenu';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-// eslint-disable-next-line import/no-unresolved
 import { useTheme } from 'react-native-paper';
 
 export default function TabLayout() {
   const { colors } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <View style={{ flex: 1 }}>
-      <GeneralMenu onMenuPress={() => setMenuOpen(true)} />
+      <HeaderWithSearch
+        onMenu={() => setMenuOpen(true)}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: colors.primary,
@@ -59,7 +63,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <SideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
+      <GeneralMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
     </View>
   );
 }

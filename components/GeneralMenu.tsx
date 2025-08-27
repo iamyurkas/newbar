@@ -1,53 +1,90 @@
-import React from 'react';
-import { View, TextInput, Pressable, StyleSheet } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-// eslint-disable-next-line import/no-unresolved
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Pressable, StyleSheet, View, Text } from 'react-native';
+import { Link } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 
 interface GeneralMenuProps {
-  onMenuPress?: () => void;
+  visible: boolean;
+  onClose: () => void;
 }
 
-export default function GeneralMenu({ onMenuPress }: GeneralMenuProps) {
+export default function GeneralMenu({ visible, onClose }: GeneralMenuProps) {
   const { colors } = useTheme();
+  const screenWidth = Dimensions.get('window').width;
+  const drawerWidth = screenWidth * 0.75;
+  const translateX = useRef(new Animated.Value(-drawerWidth)).current;
+  const [render, setRender] = useState(visible);
 
-  const tintColor = colors.primary;
-  const iconColor = colors.onSurfaceVariant;
-  const textColor = colors.onSurface;
-  const backgroundColor = colors.background;
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+      Animated.timing(translateX, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(translateX, {
+        toValue: -drawerWidth,
+        duration: 250,
+        useNativeDriver: true,
+      }).start(() => setRender(false));
+    }
+  }, [visible, drawerWidth, translateX]);
+
+  if (!render) {
+    return null;
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor }]}> 
-      <Pressable onPress={onMenuPress}>
-        <MaterialIcons name="menu" size={24} color={tintColor} />
-      </Pressable>
-      <TextInput
-        placeholder="Search"
-        placeholderTextColor={iconColor}
-        style={[styles.input, { borderColor: iconColor, color: textColor }]} 
-      />
-      <Pressable onPress={() => {}}>
-        <MaterialIcons name="filter-list" size={24} color={tintColor} />
-      </Pressable>
+    <View style={StyleSheet.absoluteFill}>
+      <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: colors.backdrop }]} onPress={onClose} />
+      <Animated.View
+        style={[
+          styles.drawer,
+          {
+            width: drawerWidth,
+            backgroundColor: colors.surface,
+            transform: [{ translateX }],
+          },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.onSurface }]}>Main Menu</Text>
+        <Link href="/(tabs)/cocktails" asChild>
+          <Pressable style={styles.menuItem} onPress={onClose}>
+            <Text style={{ color: colors.onSurface }}>Cocktails</Text>
+          </Pressable>
+        </Link>
+        <Link href="/(tabs)/shaker" asChild>
+          <Pressable style={styles.menuItem} onPress={onClose}>
+            <Text style={{ color: colors.onSurface }}>Shaker</Text>
+          </Pressable>
+        </Link>
+        <Link href="/(tabs)/ingredients" asChild>
+          <Pressable style={styles.menuItem} onPress={onClose}>
+            <Text style={{ color: colors.onSurface }}>Ingredients</Text>
+          </Pressable>
+        </Link>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  drawer: {
+    height: '100%',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    paddingTop: 48,
     paddingHorizontal: 16,
-    paddingVertical: 8,
   },
-  input: {
-    flex: 1,
-    marginHorizontal: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderRadius: 8,
+  title: {
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  menuItem: {
+    paddingVertical: 12,
   },
 });
 
