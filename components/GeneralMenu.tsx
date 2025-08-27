@@ -8,10 +8,10 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Link } from 'expo-router';
 
 interface GeneralMenuProps {
@@ -25,6 +25,9 @@ const MENU_WIDTH = SCREEN_WIDTH * 0.75;
 export default function GeneralMenu({ visible, onClose }: GeneralMenuProps) {
   const theme = useTheme();
   const slideAnim = useRef(new Animated.Value(-MENU_WIDTH)).current;
+  const [alert, setAlert] = React.useState<{ title: string; message: string } | null>(
+    null
+  );
 
   useEffect(() => {
     if (visible) {
@@ -81,40 +84,41 @@ export default function GeneralMenu({ visible, onClose }: GeneralMenuProps) {
 
   const handleIngredientTags = () => {
     onClose();
-    Alert.alert('Ingredient tags', 'Tag editor not implemented');
+    setAlert({ title: 'Ingredient tags', message: 'Tag editor not implemented' });
   };
 
   const handleCocktailTags = () => {
     onClose();
-    Alert.alert('Cocktail tags', 'Tag editor not implemented');
+    setAlert({ title: 'Cocktail tags', message: 'Tag editor not implemented' });
   };
 
   const handleExportPhotos = () => {
     onClose();
-    Alert.alert('Export photos', 'Photo export not implemented');
+    setAlert({ title: 'Export photos', message: 'Photo export not implemented' });
   };
 
   const handleExportData = () => {
     onClose();
-    Alert.alert('Export data', 'Data export not implemented');
+    setAlert({ title: 'Export data', message: 'Data export not implemented' });
   };
 
   const handleImportData = () => {
     onClose();
-    Alert.alert('Import data', 'Data import not implemented');
+    setAlert({ title: 'Import data', message: 'Data import not implemented' });
   };
 
   return (
-    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Animated.View
-          style={[
-            styles.menu,
-            { width: MENU_WIDTH, transform: [{ translateX: slideAnim }] },
-          ]}
-          onStartShouldSetResponder={() => true}
-        >
-          <ScrollView style={{ marginTop: -32 }}>
+    <>
+      <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
+        <Pressable style={styles.overlay} onPress={onClose}>
+          <Animated.View
+            style={[
+              styles.menu,
+              { width: MENU_WIDTH, transform: [{ translateX: slideAnim }] },
+            ]}
+            onStartShouldSetResponder={() => true}
+          >
+            <ScrollView style={{ marginTop: -32 }}>
             <Text style={styles.title}>Main Menu</Text>
 
             <Link href="/(tabs)/cocktails" asChild>
@@ -211,10 +215,17 @@ export default function GeneralMenu({ visible, onClose }: GeneralMenuProps) {
               />
               <Text style={styles.itemTitle}>Import data</Text>
             </TouchableOpacity>
-          </ScrollView>
-        </Animated.View>
-      </Pressable>
-    </Modal>
+            </ScrollView>
+          </Animated.View>
+        </Pressable>
+      </Modal>
+      <ConfirmDialog
+        visible={alert !== null}
+        title={alert?.title ?? ''}
+        message={alert?.message ?? ''}
+        onConfirm={() => setAlert(null)}
+      />
+    </>
   );
 }
 

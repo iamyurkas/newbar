@@ -1,7 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -16,7 +15,8 @@ import {
 
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
-import AddIngredientHeader from '@/components/AddIngredientHeader';
+import IngredientHeader from '@/components/IngredientHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 import {
   addIngredient,
@@ -37,6 +37,9 @@ export default function AddIngredientScreen() {
   const [baseIngredients, setBaseIngredients] = useState<Ingredient[]>([]);
   const [baseSearch, setBaseSearch] = useState('');
   const [baseModalVisible, setBaseModalVisible] = useState(false);
+  const [alert, setAlert] = useState<{ title: string; message: string } | null>(
+    null
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -63,7 +66,10 @@ export default function AddIngredientScreen() {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permission required', 'Allow access to media library');
+      setAlert({
+        title: 'Permission required',
+        message: 'Allow access to media library',
+      });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -77,7 +83,7 @@ export default function AddIngredientScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Please enter a name for the ingredient.');
+      setAlert({ title: '', message: 'Please enter a name for the ingredient.' });
       return;
     }
     const id = Date.now();
@@ -93,7 +99,9 @@ export default function AddIngredientScreen() {
   };
   return (
     <>
-      <Stack.Screen options={{ header: () => <AddIngredientHeader /> }} />
+      <Stack.Screen
+        options={{ header: () => <IngredientHeader title="Add ingredient" /> }}
+      />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -124,11 +132,15 @@ export default function AddIngredientScreen() {
 
         <Text style={[styles.label, { color: theme.colors.onSurface }]}>Photo:</Text>
         <TouchableOpacity
-          style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
+          style={[styles.imageButton, { backgroundColor: photoUri ? theme.colors.surface : theme.colors.placeholder }]}
           onPress={pickImage}
         >
           {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.image} />
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.image}
+              resizeMode="contain"
+            />
           ) : (
             <Text
               style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
@@ -192,7 +204,7 @@ export default function AddIngredientScreen() {
                   style={[
                     styles.baseFieldImage,
                     styles.baseImagePlaceholder,
-                    { backgroundColor: theme.colors.surfaceVariant },
+                    { backgroundColor: theme.colors.placeholder },
                   ]}
                 />
               )}
@@ -235,6 +247,13 @@ export default function AddIngredientScreen() {
         </TouchableOpacity>
       </ScrollView>
 
+      <ConfirmDialog
+        visible={alert !== null}
+        title={alert?.title ?? ''}
+        message={alert?.message ?? ''}
+        onConfirm={() => setAlert(null)}
+      />
+
       <Modal visible={baseModalVisible} animationType="slide">
         <View
           style={[
@@ -268,7 +287,7 @@ export default function AddIngredientScreen() {
                 style={[
                   styles.baseImage,
                   styles.baseImagePlaceholder,
-                  { backgroundColor: theme.colors.surfaceVariant },
+                  { backgroundColor: theme.colors.placeholder },
                 ]}
               />
               <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>None</Text>
@@ -294,7 +313,7 @@ export default function AddIngredientScreen() {
                       style={[
                         styles.baseImage,
                         styles.baseImagePlaceholder,
-                        { backgroundColor: theme.colors.surfaceVariant },
+                        { backgroundColor: theme.colors.placeholder },
                       ]}
                     />
                   )}
@@ -353,7 +372,7 @@ const styles = StyleSheet.create({
   image: {
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
   imagePlaceholder: {
     textAlign: 'center',
