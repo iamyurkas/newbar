@@ -92,7 +92,7 @@ export default function AddIngredientScreen() {
       <Stack.Screen
         options={{
           title: 'Add ingredient',
-          headerStyle: { height: 44 },
+          headerStyle: { height: 28 },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 8 }}>
               <MaterialIcons
