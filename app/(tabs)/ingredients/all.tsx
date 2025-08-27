@@ -1,16 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  InteractionManager,
+} from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import {
   getAllIngredients,
   setIngredientInBar,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
-import { getAllCocktails } from '@/storage/cocktailsStorage';
-import {
-  calculateIngredientUsage,
-  type IngredientUsage,
-} from '@/utils/ingredientUsage';
+import { getAllCocktails, type Cocktail } from '@/storage/cocktailsStorage';
+import { type IngredientUsage } from '@/utils/ingredientUsage';
+import { calculateIngredientUsageAsync } from '@/utils/calculateIngredientUsageAsync';
 import {
   getIngredientsCache,
   setIngredientsCache,
@@ -20,12 +25,33 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AllIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [barIds, setBarIds] = useState<Set<number>>(new Set());
   const [usage, setUsage] = useState<Record<number, IngredientUsage>>({});
+  const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ title: string; message: string } | null>(
     null
   );
   const router = useRouter();
+
+  const computeUsage = useCallback(
+    () => calculateIngredientUsageAsync(cocktails, barIds),
+    [cocktails, barIds]
+  );
+
+  useEffect(() => {
+    let active = true;
+    InteractionManager.runAfterInteractions(() => {
+      computeUsage().then((map) => {
+        if (active) {
+          setUsage(map);
+        }
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [computeUsage]);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,20 +59,22 @@ export default function AllIngredientsScreen() {
 
       const load = async () => {
         const cached = getIngredientsCache('all');
+        const cocktailsData = await getAllCocktails();
+        setCocktails(cocktailsData);
         if (cached) {
-          const cocktails = await getAllCocktails();
-          setUsage(calculateIngredientUsage(cocktails));
           setIngredients(cached);
+          setBarIds(
+            new Set(cached.filter((i) => i.inBar).map((i) => i.id))
+          );
           setLoading(false);
         } else {
           setLoading(true);
-          const [data, cocktails] = await Promise.all([
-            getAllIngredients(),
-            getAllCocktails(),
-          ]);
+          const data = await getAllIngredients();
           if (isActive) {
             setIngredients(data);
-            setUsage(calculateIngredientUsage(cocktails));
+            setBarIds(
+              new Set(data.filter((i) => i.inBar).map((i) => i.id))
+            );
             setIngredientsCache('all', data);
             setLoading(false);
           }
@@ -77,14 +105,23 @@ export default function AllIngredientsScreen() {
     }
     const updated = !ingredient.inBar;
     const prevList = ingredients;
+    const prevBarIds = new Set(barIds);
     const newList = ingredients.map((i) =>
       i.id === id ? { ...i, inBar: updated } : i
     );
+    const newBarIds = new Set(barIds);
+    if (updated) {
+      newBarIds.add(id);
+    } else {
+      newBarIds.delete(id);
+    }
     setIngredients(newList);
     setIngredientsCache('all', newList);
+    setBarIds(newBarIds);
     setIngredientInBar(id, updated).catch(() => {
       setIngredients(prevList);
       setIngredientsCache('all', prevList);
+      setBarIds(prevBarIds);
       setAlert({
         title: 'Error',
         message: 'Failed to update ingredient in bar.',
