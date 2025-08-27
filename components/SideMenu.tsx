@@ -7,9 +7,10 @@ import { useTheme } from 'react-native-paper';
 interface SideMenuProps {
   visible: boolean;
   onClose: () => void;
+  onManageTags?: () => void;
 }
 
-export default function SideMenu({ visible, onClose }: SideMenuProps) {
+export default function SideMenu({ visible, onClose, onManageTags }: SideMenuProps) {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get('window').width;
   const drawerWidth = screenWidth * 0.75;
@@ -66,6 +67,15 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
             <Text style={{ color: colors.onSurface }}>Ingredients</Text>
           </Pressable>
         </Link>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            onClose();
+            onManageTags?.();
+          }}
+        >
+          <Text style={{ color: colors.onSurface }}>Manage ingredients tag</Text>
+        </Pressable>
       </Animated.View>
     </View>
   );
