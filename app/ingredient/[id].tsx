@@ -118,7 +118,7 @@ export default function IngredientViewScreen() {
         options={{
           header: () => (
             <IngredientHeader
-              title={ingredient.name}
+              title="Ingredient details"
               onEdit={() => router.push(`/edit-ingredient?id=${ingredient.id}`)}
             />
           ),
@@ -127,7 +127,7 @@ export default function IngredientViewScreen() {
       <ScrollView
         contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Text style={[styles.name, { color: theme.colors.onSurface }]}>{ingredient.name}</Text>
+        <Text style={[styles.name, { color: theme.colors.onSurface }]}>Ingredient details</Text>
         {ingredient.photoUri ? (
           <Image
             source={{ uri: ingredient.photoUri }}
