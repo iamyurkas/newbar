@@ -30,7 +30,7 @@ export const AppTheme = {
     onSurfaceVariant: "#A1A1A1",
 
     disabled: "#CED4DA",
-    placeholder: "#EAF3F9",
+    placeholder: "#F8F9FA",
     backdrop: "rgba(0,0,0,0.4)",
   },
 };

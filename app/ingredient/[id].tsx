@@ -102,11 +102,11 @@ export default function IngredientViewScreen() {
         {ingredient.baseIngredientId && baseIngredient && (
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Base ingredient:</Text>
-            <View style={styles.brandedRow}>
-              <TouchableOpacity
-                style={styles.baseContainer}
-                onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
-              >
+            <TouchableOpacity
+              style={styles.brandedRow}
+              onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
+            >
+              <View style={styles.baseContainer}>
                 {baseIngredient.photoUri ? (
                   <Image
                     source={{ uri: baseIngredient.photoUri }}
@@ -125,22 +125,29 @@ export default function IngredientViewScreen() {
                 <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
                   {baseIngredient.name}
                 </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.unlinkButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleUnlinkBase();
+                }}
+              >
+                <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.unlinkButton} onPress={handleUnlinkBase}>
-                <MaterialIcons name="link-off" size={20} color={theme.colors.primary} />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         )}
         {!ingredient.baseIngredientId && (
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Branded ingredients:</Text>
             {brandedIngredients.map((b) => (
-              <View key={b.id} style={styles.brandedRow}>
-                <TouchableOpacity
-                  style={styles.baseContainer}
-                  onPress={() => router.push(`/ingredient/${b.id}`)}
-                >
+              <TouchableOpacity
+                key={b.id}
+                style={styles.brandedRow}
+                onPress={() => router.push(`/ingredient/${b.id}`)}
+              >
+                <View style={styles.baseContainer}>
                   {b.photoUri ? (
                     <Image
                       source={{ uri: b.photoUri }}
@@ -159,14 +166,17 @@ export default function IngredientViewScreen() {
                   <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
                     {b.name}
                   </Text>
-                </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                   style={styles.unlinkButton}
-                  onPress={() => handleUnlinkBranded(b.id)}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleUnlinkBranded(b.id);
+                  }}
                 >
-                  <MaterialIcons name="link-off" size={20} color={theme.colors.primary} />
+                  <MaterialIcons name="link-off" size={20} color={theme.colors.error} />
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             ))}
         </View>
         )}
