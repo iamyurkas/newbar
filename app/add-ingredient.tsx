@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Modal,
+  View,
 } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
 
 import { useRouter } from 'expo-router';
 
-import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
 import { INGREDIENT_TAGS } from '@/constants/IngredientTags';
 import {
   addIngredient,
   getBaseIngredients,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
 
 export default function AddIngredientScreen() {
   const router = useRouter();
@@ -134,7 +134,7 @@ export default function AddIngredientScreen() {
                 style={[styles.tag, { backgroundColor: tag.color }]}
                 onPress={() => toggleTag(tag)}
               >
-                <Text style={styles.tagText}>+ {tag.name}</Text>
+                <Text style={styles.tagText}>{tag.name}</Text>
               </TouchableOpacity>
             ))}
         </View>
@@ -145,7 +145,7 @@ export default function AddIngredientScreen() {
           onPress={() => setBaseModalVisible(true)}
         >
           <Text>
-            {baseIngredient ? baseIngredient.name : 'Optional'}
+            {baseIngredient ? baseIngredient.name : 'Base ingredient (optional)'}
           </Text>
         </TouchableOpacity>
 
@@ -219,7 +219,7 @@ export default function AddIngredientScreen() {
   );
 }
 
-const IMAGE_SIZE = 120;
+const IMAGE_SIZE = 150;
 const BASE_IMAGE_SIZE = 40;
 
 const styles = StyleSheet.create({
