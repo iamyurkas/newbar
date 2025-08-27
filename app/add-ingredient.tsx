@@ -12,13 +12,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-// eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
 
 import { useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 
-import { INGREDIENT_TAGS } from '@/constants/IngredientTags';
 import {
   addIngredient,
   getBaseIngredients,
@@ -41,8 +39,8 @@ export default function AddIngredientScreen() {
 
   useEffect(() => {
     const load = async () => {
-      const custom = await getAllTags();
-      setAvailableTags([...INGREDIENT_TAGS, ...custom]);
+      const tagsFromDb = await getAllTags();
+      setAvailableTags(tagsFromDb);
       const bases = await getBaseIngredients();
       setBaseIngredients(bases);
     };
