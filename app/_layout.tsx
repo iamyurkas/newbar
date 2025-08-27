@@ -1,17 +1,23 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-// eslint-disable-next-line import/no-unresolved
 import { PaperProvider } from 'react-native-paper';
 
 import { AppTheme } from '@/constants/AppTheme';
-import { useColorScheme } from '@/hooks/useColorScheme';
+
+const NavigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: AppTheme.colors.background,
+    card: AppTheme.colors.surface,
+  },
+};
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -24,7 +30,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <PaperProvider theme={AppTheme}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <ThemeProvider value={NavigationTheme}>
           <SafeAreaView style={{ flex: 1, backgroundColor: AppTheme.colors.background }}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

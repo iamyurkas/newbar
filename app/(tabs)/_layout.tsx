@@ -15,7 +15,7 @@ export default function TabLayout() {
   const [searchValue, setSearchValue] = useState('');
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <HeaderWithSearch
         onMenu={() => setMenuOpen(true)}
         searchValue={searchValue}
@@ -32,7 +32,7 @@ export default function TabLayout() {
               // Use a transparent background on iOS to show the blur effect
               position: 'absolute',
             },
-            default: {},
+            default: { backgroundColor: colors.surface },
           }),
         }}>
         <Tabs.Screen
