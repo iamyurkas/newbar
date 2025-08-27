@@ -24,6 +24,9 @@ export default function AddIngredientScreen() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(
+    null
+  );
   const [tags, setTags] = useState<IngredientTag[]>([]);
   const [availableTags, setAvailableTags] = useState<IngredientTag[]>([]);
 
@@ -52,16 +55,23 @@ export default function AddIngredientScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [1, 1],
       quality: 0.7,
     });
     if (!result.canceled) {
+      const asset = result.assets[0];
+      const resize =
+        asset.width && asset.height
+          ? asset.width > asset.height
+            ? { width: MAX_IMAGE_DIMENSION }
+            : { height: MAX_IMAGE_DIMENSION }
+          : { width: MAX_IMAGE_DIMENSION };
       const resized = await ImageManipulator.manipulateAsync(
-        result.assets[0].uri,
-        [{ resize: { width: 150, height: 150 } }],
+        asset.uri,
+        [{ resize }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
       setPhotoUri(resized.uri);
+      setImageSize({ width: resized.width, height: resized.height });
     }
   };
 
@@ -91,9 +101,15 @@ export default function AddIngredientScreen() {
         />
 
         <Text style={styles.label}>Photo:</Text>
-        <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.image} />
+        <TouchableOpacity
+          style={[styles.imageButton, imageSize && { width: imageSize.width, height: imageSize.height }]}
+          onPress={pickImage}
+        >
+          {photoUri && imageSize ? (
+            <Image
+              source={{ uri: photoUri }}
+              style={{ width: imageSize.width, height: imageSize.height, resizeMode: 'contain' }}
+            />
           ) : (
             <Text style={styles.imagePlaceholder}>Tap to select image</Text>
           )}
@@ -144,7 +160,7 @@ export default function AddIngredientScreen() {
   );
 }
 
-const IMAGE_SIZE = 150;
+const MAX_IMAGE_DIMENSION = 150;
 
 const styles = StyleSheet.create({
   container: {
@@ -164,19 +180,14 @@ const styles = StyleSheet.create({
   },
   imageButton: {
     marginTop: 8,
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
+    width: MAX_IMAGE_DIMENSION,
+    height: MAX_IMAGE_DIMENSION,
     backgroundColor: '#eee',
     borderRadius: 8,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-start',
-  },
-  image: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
-    resizeMode: 'cover',
   },
   imagePlaceholder: {
     color: '#777',
