@@ -1,18 +1,18 @@
-import { Pressable, StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 type AddButtonProps = {
   onPress: () => void;
 };
 
 export function AddButton({ onPress }: AddButtonProps) {
-  const backgroundColor = useThemeColor({}, 'tint');
+  const theme = useTheme();
   return (
-    <Pressable onPress={onPress} style={[styles.button, { backgroundColor }]}> 
-      <ThemedText lightColor="#fff" darkColor="#000">
-        Add
-      </ThemedText>
+    <Pressable
+      onPress={onPress}
+      style={[styles.button, { backgroundColor: theme.colors.tertiary }]}
+    >
+      <Text style={[styles.plus, { color: theme.colors.onPrimary }]}>+</Text>
     </Pressable>
   );
 }
@@ -27,5 +27,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  plus: {
+    fontSize: 40,
+    lineHeight: 40,
   },
 });
