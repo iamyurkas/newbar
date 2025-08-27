@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, View, Text, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 import IngredientHeader from '@/components/IngredientHeader';
-import { getIngredientById, type Ingredient } from '@/storage/ingredientsStorage';
+import {
+  getIngredientById,
+  getBrandedIngredients,
+  unlinkBaseIngredient,
+  type Ingredient,
+} from '@/storage/ingredientsStorage';
 
 export default function IngredientViewScreen() {
   const { id } = useLocalSearchParams();
@@ -12,6 +17,7 @@ export default function IngredientViewScreen() {
   const router = useRouter();
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [baseIngredient, setBaseIngredient] = useState<Ingredient | null>(null);
+  const [brandedIngredients, setBrandedIngredients] = useState<Ingredient[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -21,15 +27,25 @@ export default function IngredientViewScreen() {
         if (ing?.baseIngredientId) {
           const base = await getIngredientById(ing.baseIngredientId);
           setBaseIngredient(base);
+          setBrandedIngredients([]);
+        } else if (ing) {
+          const branded = await getBrandedIngredients(ing.id);
+          setBrandedIngredients(branded);
+          setBaseIngredient(null);
         }
       }
     };
     load();
   }, [id]);
 
+  const handleUnlink = async (brandedId: number) => {
+    await unlinkBaseIngredient(brandedId);
+    setBrandedIngredients((prev) => prev.filter((b) => b.id !== brandedId));
+  };
+
   if (!ingredient) {
     return (
-      <View style={[styles.loading, { backgroundColor: theme.colors.background }]}> 
+      <View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
         <Text>Loading...</Text>
       </View>
     );
@@ -48,55 +64,43 @@ export default function IngredientViewScreen() {
         }}
       />
       <ScrollView
-        contentContainerStyle={[
-          styles.container,
-          { backgroundColor: theme.colors.background },
-        ]}
+        contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Text style={[styles.name, { color: theme.colors.onSurface }]}> 
-          {ingredient.name}
-        </Text>
+        <Text style={[styles.name, { color: theme.colors.onSurface }]}>{ingredient.name}</Text>
         {ingredient.photoUri ? (
           <Image
             source={{ uri: ingredient.photoUri }}
             style={styles.image}
+            resizeMode="contain"
           />
         ) : (
           <View
-            style={[
-              styles.imagePlaceholder,
-              { backgroundColor: theme.colors.surfaceVariant },
-            ]}
+            style={[styles.imagePlaceholder, { backgroundColor: theme.colors.surfaceVariant }]}
           >
-            <Text
-              style={[styles.noImageText, { color: theme.colors.onSurfaceVariant }]}
-            >
-              No image
-            </Text>
+            <Text style={[styles.noImageText, { color: theme.colors.onSurfaceVariant }]}>No image</Text>
           </View>
         )}
         {ingredient.tags.length > 0 && (
           <View style={styles.tagContainer}>
             {ingredient.tags.map((tag) => (
-              <View
-                key={tag.id}
-                style={[styles.tag, { backgroundColor: tag.color }]}
-              >
+              <View key={tag.id} style={[styles.tag, { backgroundColor: tag.color }]}>
                 <Text style={styles.tagText}>{tag.name}</Text>
               </View>
             ))}
           </View>
         )}
-        {baseIngredient && (
+        {ingredient.baseIngredientId && baseIngredient && (
           <View style={styles.baseSection}>
-            <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}> 
-              Base ingredient:
-            </Text>
-            <View style={styles.baseContainer}>
+            <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Base ingredient:</Text>
+            <TouchableOpacity
+              style={styles.baseContainer}
+              onPress={() => router.push(`/ingredient/${baseIngredient.id}`)}
+            >
               {baseIngredient.photoUri ? (
                 <Image
                   source={{ uri: baseIngredient.photoUri }}
                   style={styles.baseImage}
+                  resizeMode="contain"
                 />
               ) : (
                 <View
@@ -107,16 +111,52 @@ export default function IngredientViewScreen() {
                   ]}
                 />
               )}
-              <Text
-                style={[styles.baseName, { color: theme.colors.onSurface }]}
-              >
+              <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
                 {baseIngredient.name}
               </Text>
-            </View>
+            </TouchableOpacity>
+          </View>
+        )}
+        {!ingredient.baseIngredientId && (
+          <View style={styles.baseSection}>
+            <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Branded ingredients:</Text>
+            {brandedIngredients.map((b) => (
+              <View key={b.id} style={styles.brandedRow}>
+                <TouchableOpacity
+                  style={styles.baseContainer}
+                  onPress={() => router.push(`/ingredient/${b.id}`)}
+                >
+                  {b.photoUri ? (
+                    <Image
+                      source={{ uri: b.photoUri }}
+                      style={styles.baseImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.baseImage,
+                        styles.baseImagePlaceholder,
+                        { backgroundColor: theme.colors.surfaceVariant },
+                      ]}
+                    />
+                  )}
+                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
+                    {b.name}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unlinkButton}
+                  onPress={() => handleUnlink(b.id)}
+                >
+                  <Text style={[styles.unlinkText, { color: theme.colors.primary }]}>Unlink</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
         {ingredient.description ? (
-          <Text style={[styles.description, { color: theme.colors.onSurface }]}> 
+          <Text style={[styles.description, { color: theme.colors.onSurface }]}>
             {ingredient.description}
           </Text>
         ) : null}
@@ -201,5 +241,17 @@ const styles = StyleSheet.create({
   },
   baseName: {
     fontSize: 16,
+  },
+  brandedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  unlinkButton: {
+    padding: 8,
+  },
+  unlinkText: {
+    fontSize: 14,
   },
 });

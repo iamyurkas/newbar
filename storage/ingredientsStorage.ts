@@ -85,3 +85,20 @@ export async function getIngredientById(id: number): Promise<Ingredient | null> 
   }
   return mapRowToIngredient(rows[0]);
 }
+
+export async function getBrandedIngredients(
+  baseIngredientId: number
+): Promise<Ingredient[]> {
+  const rows = await db.getAllAsync<IngredientRow>(
+    'SELECT * FROM ingredients WHERE baseIngredientId = ?',
+    baseIngredientId
+  );
+  return rows.map(mapRowToIngredient);
+}
+
+export async function unlinkBaseIngredient(ingredientId: number): Promise<void> {
+  await db.runAsync(
+    'UPDATE ingredients SET baseIngredientId = NULL WHERE id = ?',
+    ingredientId
+  );
+}

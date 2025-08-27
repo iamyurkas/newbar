@@ -130,7 +130,11 @@ export default function AddIngredientScreen() {
           onPress={pickImage}
         >
           {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.image} />
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.image}
+              resizeMode="contain"
+            />
           ) : (
             <Text
               style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
@@ -355,7 +359,7 @@ const styles = StyleSheet.create({
   image: {
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
   imagePlaceholder: {
     textAlign: 'center',
