@@ -172,6 +172,17 @@ export default function AddIngredientScreen() {
             style={styles.input}
           />
           <ScrollView style={{ marginTop: 16 }}>
+            <TouchableOpacity
+              style={styles.baseItem}
+              onPress={() => {
+                setBaseIngredient(null);
+                setBaseModalVisible(false);
+              }}
+            >
+              <View style={[styles.baseImage, styles.baseImagePlaceholder]} />
+              <Text style={styles.baseName}>None</Text>
+            </TouchableOpacity>
+
             {baseIngredients
               .filter((b) =>
                 b.name.toLowerCase().includes(baseSearch.toLowerCase())
@@ -179,27 +190,25 @@ export default function AddIngredientScreen() {
               .map((b) => (
                 <TouchableOpacity
                   key={b.id}
-                  style={{ paddingVertical: 8 }}
+                  style={styles.baseItem}
                   onPress={() => {
                     setBaseIngredient(b);
                     setBaseModalVisible(false);
                   }}
                 >
-                  <Text>{b.name}</Text>
+                  {b.photoUri ? (
+                    <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
+                  ) : (
+                    <View
+                      style={[styles.baseImage, styles.baseImagePlaceholder]}
+                    />
+                  )}
+                  <Text style={styles.baseName}>{b.name}</Text>
                 </TouchableOpacity>
               ))}
           </ScrollView>
           <TouchableOpacity
             style={[styles.saveButton, { marginTop: 16 }]}
-            onPress={() => {
-              setBaseIngredient(null);
-              setBaseModalVisible(false);
-            }}
-          >
-            <Text style={styles.saveText}>Clear</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.saveButton, { marginTop: 12 }]}
             onPress={() => setBaseModalVisible(false)}
           >
             <Text style={styles.saveText}>Close</Text>
@@ -211,6 +220,7 @@ export default function AddIngredientScreen() {
 }
 
 const IMAGE_SIZE = 120;
+const BASE_IMAGE_SIZE = 40;
 
 const styles = StyleSheet.create({
   container: {
@@ -262,6 +272,23 @@ const styles = StyleSheet.create({
   tagText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  baseItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  baseImage: {
+    width: BASE_IMAGE_SIZE,
+    height: BASE_IMAGE_SIZE,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  baseImagePlaceholder: {
+    backgroundColor: '#eee',
+  },
+  baseName: {
+    fontSize: 16,
   },
   saveButton: {
     marginTop: 24,
