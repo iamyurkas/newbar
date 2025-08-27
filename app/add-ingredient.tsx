@@ -14,8 +14,9 @@ import {
   View,
 } from 'react-native';
 
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import {
   addIngredient,
@@ -86,13 +87,37 @@ export default function AddIngredientScreen() {
     });
     router.replace('/ingredients/all');
   };
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
+    <>
+      <Stack.Screen
+        options={{
+          title: 'Add ingredient',
+          headerStyle: { height: 44 },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 8 }}>
+              <MaterialIcons
+                name="arrow-back"
+                size={24}
+                color={theme.colors.onSurface}
+              />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => {}} style={{ marginRight: 8 }}>
+              <MaterialIcons
+                name="edit"
+                size={24}
+                color={theme.colors.onSurface}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -310,6 +335,7 @@ export default function AddIngredientScreen() {
         </View>
       </Modal>
     </KeyboardAvoidingView>
+    </>
   );
 }
 
