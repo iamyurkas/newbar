@@ -6,6 +6,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HapticTab } from '@/components/HapticTab';
 import GeneralMenu from '@/components/GeneralMenu';
 import SideMenu from '@/components/SideMenu';
+import ManageTagsModal from '@/components/ManageTagsModal';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 // eslint-disable-next-line import/no-unresolved
 import { useTheme } from 'react-native-paper';
@@ -13,6 +14,7 @@ import { useTheme } from 'react-native-paper';
 export default function TabLayout() {
   const { colors } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [tagsModalVisible, setTagsModalVisible] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
@@ -59,7 +61,12 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <SideMenu visible={menuOpen} onClose={() => setMenuOpen(false)} />
+      <SideMenu
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onManageTags={() => setTagsModalVisible(true)}
+      />
+      <ManageTagsModal visible={tagsModalVisible} onDismiss={() => setTagsModalVisible(false)} />
     </View>
   );
 }
