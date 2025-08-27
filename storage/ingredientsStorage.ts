@@ -155,3 +155,21 @@ export async function setIngredientInShoppingList(
     ingredientId
   );
 }
+
+export async function updateIngredient(ingredient: Ingredient): Promise<void> {
+  await db.runAsync(
+    'UPDATE ingredients SET name = ?, description = ?, photoUri = ?, tags = ?, baseIngredientId = ?, inBar = ?, inShoppingList = ? WHERE id = ?',
+    ingredient.name,
+    ingredient.description ?? null,
+    ingredient.photoUri ?? null,
+    JSON.stringify(ingredient.tags),
+    ingredient.baseIngredientId ?? null,
+    ingredient.inBar ? 1 : 0,
+    ingredient.inShoppingList ? 1 : 0,
+    ingredient.id
+  );
+}
+
+export async function deleteIngredient(id: number): Promise<void> {
+  await db.runAsync('DELETE FROM ingredients WHERE id = ?', id);
+}
