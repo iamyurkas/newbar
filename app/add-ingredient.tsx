@@ -16,7 +16,7 @@ import {
 
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AddIngredientHeader from '@/components/AddIngredientHeader';
 
 import {
   addIngredient,
@@ -89,30 +89,7 @@ export default function AddIngredientScreen() {
   };
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: 'Add ingredient',
-          headerStyle: { height: 28 },
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 8 }}>
-              <MaterialIcons
-                name="arrow-back"
-                size={24}
-                color={theme.colors.onSurface}
-              />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity onPress={() => {}} style={{ marginRight: 8 }}>
-              <MaterialIcons
-                name="edit"
-                size={24}
-                color={theme.colors.onSurface}
-              />
-            </TouchableOpacity>
-          ),
-        }}
-      />
+      <Stack.Screen options={{ header: () => <AddIngredientHeader /> }} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
