@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Portal, Dialog, Button, Text, useTheme } from 'react-native-paper';
+import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   button: {
-    borderRadius: 24,
+    borderRadius: 20,
+    paddingHorizontal: 8,
   },
 });
 

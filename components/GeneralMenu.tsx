@@ -1,18 +1,18 @@
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
   Dimensions,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
-import ConfirmDialog from '@/components/ConfirmDialog';
-import { Link } from 'expo-router';
 
 interface GeneralMenuProps {
   visible: boolean;
