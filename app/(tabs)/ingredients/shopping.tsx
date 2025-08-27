@@ -6,6 +6,10 @@ import {
   setIngredientInShoppingList,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import {
+  getIngredientsCache,
+  setIngredientsCache,
+} from '@/storage/ingredientsCache';
 import IngredientRow from '@/components/IngredientRow';
 
 export default function ShoppingIngredientsScreen() {
@@ -18,11 +22,18 @@ export default function ShoppingIngredientsScreen() {
       let isActive = true;
 
       const load = async () => {
-        setLoading(true);
-        const data = await getShoppingListIngredients();
-        if (isActive) {
-          setIngredients(data);
+        const cached = getIngredientsCache('shopping');
+        if (cached) {
+          setIngredients(cached);
           setLoading(false);
+        } else {
+          setLoading(true);
+          const data = await getShoppingListIngredients();
+          if (isActive) {
+            setIngredients(data);
+            setIngredientsCache('shopping', data);
+            setLoading(false);
+          }
         }
       };
 
@@ -35,8 +46,10 @@ export default function ShoppingIngredientsScreen() {
   );
 
   const handleRemove = async (id: number) => {
-    setIngredients((prev) => prev.filter((i) => i.id !== id));
+    const newList = ingredients.filter((i) => i.id !== id);
+    setIngredients(newList);
     await setIngredientInShoppingList(id, false);
+    setIngredientsCache('shopping', newList);
   };
 
   if (loading) {

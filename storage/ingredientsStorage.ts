@@ -1,5 +1,6 @@
 import { openDatabaseSync } from 'expo-sqlite';
 import type { IngredientTag } from './ingredientTagsStorage';
+import { markIngredientsCacheDirty } from './ingredientsCache';
 
 export type Ingredient = {
   id: number;
@@ -87,6 +88,7 @@ export async function addIngredient(ingredient: Ingredient): Promise<void> {
     ingredient.inBar ? 1 : 0,
     ingredient.inShoppingList ? 1 : 0,
   );
+  markIngredientsCacheDirty();
 }
 
 export async function getAllIngredients(): Promise<Ingredient[]> {
@@ -132,6 +134,7 @@ export async function unlinkBaseIngredient(ingredientId: number): Promise<void> 
     'UPDATE ingredients SET baseIngredientId = NULL WHERE id = ?',
     ingredientId
   );
+  markIngredientsCacheDirty();
 }
 
 export async function setIngredientInBar(
@@ -143,6 +146,7 @@ export async function setIngredientInBar(
     inBar ? 1 : 0,
     ingredientId
   );
+  markIngredientsCacheDirty();
 }
 
 export async function setIngredientInShoppingList(
@@ -154,6 +158,7 @@ export async function setIngredientInShoppingList(
     inShoppingList ? 1 : 0,
     ingredientId
   );
+  markIngredientsCacheDirty();
 }
 
 export async function updateIngredient(ingredient: Ingredient): Promise<void> {
@@ -168,8 +173,10 @@ export async function updateIngredient(ingredient: Ingredient): Promise<void> {
     ingredient.inShoppingList ? 1 : 0,
     ingredient.id
   );
+  markIngredientsCacheDirty();
 }
 
 export async function deleteIngredient(id: number): Promise<void> {
   await db.runAsync('DELETE FROM ingredients WHERE id = ?', id);
+  markIngredientsCacheDirty();
 }
