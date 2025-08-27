@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  InteractionManager,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import {
@@ -26,6 +27,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function MyIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [barIds, setBarIds] = useState<Set<number>>(new Set());
   const [usage, setUsage] = useState<Record<number, IngredientUsage>>({});
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +35,23 @@ export default function MyIngredientsScreen() {
     null
   );
   const router = useRouter();
+
+  const computeUsage = useMemo(
+    () => () => calculateIngredientUsage(cocktails, barIds),
+    [cocktails, barIds]
+  );
+
+  useEffect(() => {
+    let active = true;
+    InteractionManager.runAfterInteractions(() => {
+      if (active) {
+        setUsage(computeUsage());
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [computeUsage]);
 
   useFocusEffect(
     useCallback(() => {
@@ -44,24 +63,14 @@ export default function MyIngredientsScreen() {
         setCocktails(cocktailsData);
         if (cached) {
           setIngredients(cached);
-          setUsage(
-            calculateIngredientUsage(
-              cocktailsData,
-              new Set(cached.map((i) => i.id))
-            )
-          );
+          setBarIds(new Set(cached.map((i) => i.id)));
           setLoading(false);
         } else {
           setLoading(true);
           const data = await getIngredientsInBar();
           if (isActive) {
             setIngredients(data);
-            setUsage(
-              calculateIngredientUsage(
-                cocktailsData,
-                new Set(data.map((i) => i.id))
-              )
-            );
+            setBarIds(new Set(data.map((i) => i.id)));
             setIngredientsCache('my', data);
             setLoading(false);
           }
@@ -92,22 +101,23 @@ export default function MyIngredientsScreen() {
     }
     const updated = !ingredient.inBar;
     const prevList = ingredients;
-    const prevUsage = usage;
+    const prevBarIds = new Set(barIds);
     const newList = updated
       ? ingredients.map((i) => (i.id === id ? { ...i, inBar: updated } : i))
       : ingredients.filter((i) => i.id !== id);
+    const newBarIds = new Set(barIds);
+    if (updated) {
+      newBarIds.add(id);
+    } else {
+      newBarIds.delete(id);
+    }
     setIngredients(newList);
     setIngredientsCache('my', newList);
-    setUsage(
-      calculateIngredientUsage(
-        cocktails,
-        new Set(newList.map((i) => i.id))
-      )
-    );
+    setBarIds(newBarIds);
     setIngredientInBar(id, updated).catch(() => {
       setIngredients(prevList);
       setIngredientsCache('my', prevList);
-      setUsage(prevUsage);
+      setBarIds(prevBarIds);
       setAlert({
         title: 'Error',
         message: 'Failed to update ingredient in bar.',
