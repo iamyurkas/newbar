@@ -257,6 +257,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     color: '#777',
     textAlign: 'center',
+    paddingHorizontal: 10,
   },
   tagContainer: {
     flexDirection: 'row',
