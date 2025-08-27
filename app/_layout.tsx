@@ -5,8 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
+import { useEffect } from 'react';
 
 import { AppTheme } from '@/constants/AppTheme';
+import { initializeDatabase } from '@/utils/initializeDatabase';
 
 const NavigationTheme = {
   ...DefaultTheme,
@@ -21,6 +23,10 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  useEffect(() => {
+    void initializeDatabase();
+  }, []);
 
   if (!loaded) {
     // Async font loading only occurs in development.
