@@ -41,6 +41,10 @@ export default function AddIngredientScreen() {
     const load = async () => {
       const tagsFromDb = await getAllTags();
       setAvailableTags(tagsFromDb);
+      const otherTag = tagsFromDb.find((t) => t.name === 'other');
+      if (otherTag) {
+        setTags([otherTag]);
+      }
       const bases = await getBaseIngredients();
       setBaseIngredients(bases);
     };
