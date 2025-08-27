@@ -7,12 +7,12 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import IngredientHeader from '@/components/IngredientHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   getIngredientById,
   getBrandedIngredients,
@@ -29,6 +29,13 @@ export default function IngredientViewScreen() {
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [baseIngredient, setBaseIngredient] = useState<Ingredient | null>(null);
   const [brandedIngredients, setBrandedIngredients] = useState<Ingredient[]>([]);
+  const [dialog, setDialog] = useState<{
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -50,42 +57,34 @@ export default function IngredientViewScreen() {
   }, [id]);
 
   const handleUnlinkBranded = (branded: Ingredient) => {
-    Alert.alert(
-      'Unlink',
-      `Remove link for "${branded.name}" from this base ingredient?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'OK',
-          onPress: async () => {
-            await unlinkBaseIngredient(branded.id);
-            setBrandedIngredients((prev) =>
-              prev.filter((b) => b.id !== branded.id)
-            );
-          },
-        },
-      ]
-    );
+    setDialog({
+      title: 'Unlink',
+      message: `Remove link for "${branded.name}" from this base ingredient?`,
+      confirmLabel: 'Unlink',
+      cancelLabel: 'Cancel',
+      onConfirm: async () => {
+        await unlinkBaseIngredient(branded.id);
+        setBrandedIngredients((prev) =>
+          prev.filter((b) => b.id !== branded.id)
+        );
+      },
+    });
   };
 
   const handleUnlinkBase = () => {
     if (ingredient && baseIngredient) {
-      Alert.alert(
-        'Unlink',
-        `Remove link to base ingredient ${baseIngredient.name}?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'OK',
-            onPress: async () => {
-              await unlinkBaseIngredient(ingredient.id);
-              setIngredient({ ...ingredient, baseIngredientId: null });
-              setBaseIngredient(null);
-              setBrandedIngredients([]);
-            },
-          },
-        ]
-      );
+      setDialog({
+        title: 'Unlink',
+        message: `Remove link to base ingredient ${baseIngredient.name}?`,
+        confirmLabel: 'Unlink',
+        cancelLabel: 'Cancel',
+        onConfirm: async () => {
+          await unlinkBaseIngredient(ingredient.id);
+          setIngredient({ ...ingredient, baseIngredientId: null });
+          setBaseIngredient(null);
+          setBrandedIngredients([]);
+        },
+      });
     }
   };
 
@@ -295,6 +294,20 @@ export default function IngredientViewScreen() {
           </Text>
         ) : null}
       </ScrollView>
+      <ConfirmDialog
+        visible={dialog !== null}
+        title={dialog?.title ?? ''}
+        message={dialog?.message ?? ''}
+        confirmLabel={dialog?.confirmLabel}
+        cancelLabel={dialog?.cancelLabel}
+        onConfirm={async () => {
+          if (dialog) {
+            await dialog.onConfirm();
+            setDialog(null);
+          }
+        }}
+        onCancel={() => setDialog(null)}
+      />
     </>
   );
 }

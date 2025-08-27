@@ -1,7 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -17,6 +16,7 @@ import {
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 import IngredientHeader from '@/components/IngredientHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 import {
   addIngredient,
@@ -37,6 +37,9 @@ export default function AddIngredientScreen() {
   const [baseIngredients, setBaseIngredients] = useState<Ingredient[]>([]);
   const [baseSearch, setBaseSearch] = useState('');
   const [baseModalVisible, setBaseModalVisible] = useState(false);
+  const [alert, setAlert] = useState<{ title: string; message: string } | null>(
+    null
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -63,7 +66,10 @@ export default function AddIngredientScreen() {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permission required', 'Allow access to media library');
+      setAlert({
+        title: 'Permission required',
+        message: 'Allow access to media library',
+      });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -77,7 +83,7 @@ export default function AddIngredientScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Please enter a name for the ingredient.');
+      setAlert({ title: '', message: 'Please enter a name for the ingredient.' });
       return;
     }
     const id = Date.now();
@@ -240,6 +246,13 @@ export default function AddIngredientScreen() {
           <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Save Ingredient</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={alert !== null}
+        title={alert?.title ?? ''}
+        message={alert?.message ?? ''}
+        onConfirm={() => setAlert(null)}
+      />
 
       <Modal visible={baseModalVisible} animationType="slide">
         <View
