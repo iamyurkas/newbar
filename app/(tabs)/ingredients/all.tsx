@@ -59,6 +59,7 @@ export default function AllIngredientsScreen() {
       data={ingredients}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
+      ListFooterComponent={() => <View style={{ height: 80 }} />}
     />
   );
 }
