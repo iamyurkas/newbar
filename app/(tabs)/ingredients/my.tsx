@@ -22,12 +22,16 @@ import {
   setIngredientsCache,
 } from '@/storage/ingredientsCache';
 import IngredientRow from '@/components/IngredientRow';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function MyIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [usage, setUsage] = useState<Record<number, IngredientUsage>>({});
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState<{ title: string; message: string } | null>(
+    null
+  );
   const router = useRouter();
 
   useFocusEffect(
@@ -81,17 +85,18 @@ export default function MyIngredientsScreen() {
     );
   }
 
-  const toggleInBar = async (id: number) => {
+  const toggleInBar = (id: number) => {
     const ingredient = ingredients.find((i) => i.id === id);
     if (!ingredient) {
       return;
     }
     const updated = !ingredient.inBar;
+    const prevList = ingredients;
+    const prevUsage = usage;
     const newList = updated
       ? ingredients.map((i) => (i.id === id ? { ...i, inBar: updated } : i))
       : ingredients.filter((i) => i.id !== id);
     setIngredients(newList);
-    await setIngredientInBar(id, updated);
     setIngredientsCache('my', newList);
     setUsage(
       calculateIngredientUsage(
@@ -99,6 +104,15 @@ export default function MyIngredientsScreen() {
         new Set(newList.map((i) => i.id))
       )
     );
+    setIngredientInBar(id, updated).catch(() => {
+      setIngredients(prevList);
+      setIngredientsCache('my', prevList);
+      setUsage(prevUsage);
+      setAlert({
+        title: 'Error',
+        message: 'Failed to update ingredient in bar.',
+      });
+    });
   };
 
   const renderItem = ({ item }: { item: Ingredient }) => (
@@ -119,17 +133,25 @@ export default function MyIngredientsScreen() {
   );
 
   return (
-    <FlatList
-      data={ingredients}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={renderItem}
-      ListEmptyComponent={() => (
-        <View style={styles.centerContent}>
-          <Text>Your bar is empty.</Text>
-        </View>
-      )}
-      ListFooterComponent={() => <View style={{ height: 80 }} />}
-    />
+    <>
+      <FlatList
+        data={ingredients}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={() => (
+          <View style={styles.centerContent}>
+            <Text>Your bar is empty.</Text>
+          </View>
+        )}
+        ListFooterComponent={() => <View style={{ height: 80 }} />}
+      />
+      <ConfirmDialog
+        visible={alert !== null}
+        title={alert?.title ?? ''}
+        message={alert?.message ?? ''}
+        onConfirm={() => setAlert(null)}
+      />
+    </>
   );
 }
 

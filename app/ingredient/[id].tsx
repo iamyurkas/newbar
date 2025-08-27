@@ -89,11 +89,19 @@ export default function IngredientViewScreen() {
     }
   };
 
-  const handleToggleInBar = async () => {
+  const handleToggleInBar = () => {
     if (ingredient) {
+      const prev = ingredient;
       const newValue = !ingredient.inBar;
       setIngredient({ ...ingredient, inBar: newValue });
-      await setIngredientInBar(ingredient.id, newValue);
+      setIngredientInBar(ingredient.id, newValue).catch(() => {
+        setIngredient(prev);
+        setDialog({
+          title: 'Error',
+          message: 'Failed to update ingredient in bar.',
+          onConfirm: () => setDialog(null),
+        });
+      });
     }
   };
 
