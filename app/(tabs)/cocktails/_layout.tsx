@@ -15,7 +15,12 @@ export default function CocktailsLayout() {
   const router = useRouter();
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Tabs screenOptions={{ tabBarStyle: { backgroundColor: colors.surface } }}>
+      <Tabs
+        screenOptions={{
+          tabBarStyle: { backgroundColor: colors.surface },
+          tabBarIndicatorStyle: { backgroundColor: colors.primary },
+        }}
+      >
         <Tabs.Screen name="all" options={{ title: 'All' }} />
         <Tabs.Screen name="my" options={{ title: 'My' }} />
         <Tabs.Screen name="favorites" options={{ title: 'Favorites' }} />
