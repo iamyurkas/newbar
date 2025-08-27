@@ -4,7 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
-const HEADER_HEIGHT = 28;
+const HEADER_HEIGHT = 56;
 
 type Props = {
   title: string;

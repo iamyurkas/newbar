@@ -109,21 +109,7 @@ export default function IngredientViewScreen() {
           </View>
         )}
         <View style={styles.actionsRow}>
-          <TouchableOpacity onPress={handleToggleInBar}>
-            <MaterialIcons
-              name={ingredient.inBar ? 'check-box' : 'check-box-outline-blank'}
-              size={24}
-              color={
-                ingredient.inBar
-                  ? theme.colors.primary
-                  : theme.colors.onSurfaceVariant
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.shoppingIcon}
-            onPress={handleToggleShoppingList}
-          >
+          <TouchableOpacity onPress={handleToggleShoppingList}>
             <MaterialIcons
               name={
                 ingredient.inShoppingList ? 'shopping-cart' : 'add-shopping-cart'
@@ -131,6 +117,22 @@ export default function IngredientViewScreen() {
               size={24}
               color={
                 ingredient.inShoppingList
+                  ? theme.colors.primary
+                  : theme.colors.onSurfaceVariant
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.checkboxIcon}
+            onPress={handleToggleInBar}
+          >
+            <MaterialIcons
+              name={
+                ingredient.inBar ? 'check-circle' : 'radio-button-unchecked'
+              }
+              size={24}
+              color={
+                ingredient.inBar
                   ? theme.colors.primary
                   : theme.colors.onSurfaceVariant
               }
@@ -329,7 +331,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 8,
   },
-  shoppingIcon: {
+  checkboxIcon: {
     marginLeft: 16,
   },
 });
