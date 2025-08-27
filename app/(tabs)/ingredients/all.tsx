@@ -9,7 +9,7 @@ export default function AllIngredientsScreen() {
   return (
     <ThemedView style={{ flex: 1 }}>
       <IngredientList />
-      <AddButton onPress={() => router.push('/add-ingredient')} />
+      <AddButton onPress={() => router.push('/ingredients/create')} />
     </ThemedView>
   );
 }
