@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -12,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 
 import { useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
@@ -209,7 +209,7 @@ export default function AddIngredientScreen() {
           style={[
             styles.input,
             {
-              height: INPUT_HEIGHT * 3,
+              height: INPUT_HEIGHT * 2,
               borderColor: theme.colors.outline,
               backgroundColor: theme.colors.surface,
               color: theme.colors.onSurface,
@@ -315,8 +315,8 @@ export default function AddIngredientScreen() {
 
 const IMAGE_SIZE = 150;
 const BASE_IMAGE_SIZE = 40;
-const BASE_FIELD_IMAGE_SIZE = 28;
-const INPUT_HEIGHT = 48;
+const BASE_FIELD_IMAGE_SIZE = 36;
+const INPUT_HEIGHT = 56;
 
 const styles = StyleSheet.create({
   container: {
