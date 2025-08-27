@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable, StyleSheet, Platform } from 'react-native
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { withAlpha } from '../utils/color';
+import { getImageSource } from '../utils/getImageSource';
 
 export const IMAGE_SIZE = 50;
 const ROW_VERTICAL = 8;
@@ -99,7 +100,7 @@ function IngredientRow({
         >
           {photoUri ? (
             <Image
-              source={{ uri: photoUri }}
+              source={getImageSource(photoUri)}
               style={[styles.image, { backgroundColor: theme.colors.background }]}
               resizeMode="contain"
             />
