@@ -1,7 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { getAllIngredients, type Ingredient } from '@/storage/ingredientsStorage';
+import {
+  getAllIngredients,
+  setIngredientInBar,
+  type Ingredient,
+} from '@/storage/ingredientsStorage';
 import IngredientRow from '@/components/IngredientRow';
 
 export default function AllIngredientsScreen() {
@@ -39,6 +43,18 @@ export default function AllIngredientsScreen() {
     );
   }
 
+  const toggleInBar = async (id: number) => {
+    const ingredient = ingredients.find((i) => i.id === id);
+    if (!ingredient) {
+      return;
+    }
+    const updated = !ingredient.inBar;
+    setIngredients((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, inBar: updated } : i))
+    );
+    await setIngredientInBar(id, updated);
+  };
+
   const renderItem = ({ item }: { item: Ingredient }) => (
     <IngredientRow
       id={item.id}
@@ -51,6 +67,7 @@ export default function AllIngredientsScreen() {
       inShoppingList={item.inShoppingList}
       baseIngredientId={item.baseIngredientId}
       onPress={() => router.push(`/ingredient/${item.id}`)}
+      onToggleInBar={toggleInBar}
     />
   );
 
