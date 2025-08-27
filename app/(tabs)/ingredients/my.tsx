@@ -42,7 +42,7 @@ export default function MyIngredientsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.centerContent}>
         <ActivityIndicator size="large" color="#4DABF7" />
         <Text style={{ marginTop: 12 }}>Loading ingredients...</Text>
       </View>
@@ -84,13 +84,18 @@ export default function MyIngredientsScreen() {
       data={ingredients}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
+      ListEmptyComponent={() => (
+        <View style={styles.centerContent}>
+          <Text>Your bar is empty.</Text>
+        </View>
+      )}
       ListFooterComponent={() => <View style={{ height: 80 }} />}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  centerContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

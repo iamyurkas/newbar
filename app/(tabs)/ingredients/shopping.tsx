@@ -41,7 +41,7 @@ export default function ShoppingIngredientsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.centerContent}>
         <ActivityIndicator size="large" color="#4DABF7" />
         <Text style={{ marginTop: 12 }}>Loading ingredients...</Text>
       </View>
@@ -70,7 +70,7 @@ export default function ShoppingIngredientsScreen() {
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
       ListEmptyComponent={() => (
-        <View style={styles.loadingContainer}>
+        <View style={styles.centerContent}>
           <Text>Your shopping list is empty.</Text>
         </View>
       )}
@@ -80,7 +80,7 @@ export default function ShoppingIngredientsScreen() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  centerContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
