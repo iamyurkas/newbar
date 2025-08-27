@@ -7,10 +7,8 @@ import {
   type Ingredient,
 } from '@/storage/ingredientsStorage';
 import { getAllCocktails } from '@/storage/cocktailsStorage';
-import {
-  calculateIngredientUsage,
-  type IngredientUsage,
-} from '@/utils/ingredientUsage';
+import { type IngredientUsage } from '@/utils/ingredientUsage';
+import { calculateIngredientUsageAsync } from '@/utils/calculateIngredientUsageAsync';
 import {
   getIngredientsCache,
   setIngredientsCache,
@@ -31,7 +29,8 @@ export default function ShoppingIngredientsScreen() {
         const cached = getIngredientsCache('shopping');
         if (cached) {
           const cocktails = await getAllCocktails();
-          setUsage(calculateIngredientUsage(cocktails));
+          const map = await calculateIngredientUsageAsync(cocktails);
+          setUsage(map);
           setIngredients(cached);
           setLoading(false);
         } else {
@@ -41,8 +40,9 @@ export default function ShoppingIngredientsScreen() {
             getAllCocktails(),
           ]);
           if (isActive) {
+            const map = await calculateIngredientUsageAsync(cocktails);
             setIngredients(data);
-            setUsage(calculateIngredientUsage(cocktails));
+            setUsage(map);
             setIngredientsCache('shopping', data);
             setLoading(false);
           }

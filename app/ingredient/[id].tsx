@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ScrollView,
@@ -25,7 +25,8 @@ import {
   type Ingredient,
 } from '@/storage/ingredientsStorage';
 import { getAllCocktails, type Cocktail } from '@/storage/cocktailsStorage';
-import { calculateIngredientUsage, type IngredientUsage } from '@/utils/ingredientUsage';
+import { type IngredientUsage } from '@/utils/ingredientUsage';
+import { calculateIngredientUsageAsync } from '@/utils/calculateIngredientUsageAsync';
 import { getIngredientsCache } from '@/storage/ingredientsCache';
 
 export default function IngredientViewScreen() {
@@ -45,8 +46,8 @@ export default function IngredientViewScreen() {
   const [barIds, setBarIds] = useState<Set<number>>(new Set());
   const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [usage, setUsage] = useState<IngredientUsage>();
-  const computeUsage = useMemo(
-    () => () => calculateIngredientUsage(cocktails, barIds),
+  const computeUsage = useCallback(
+    () => calculateIngredientUsageAsync(cocktails, barIds),
     [cocktails, barIds]
   );
 
@@ -87,9 +88,12 @@ export default function IngredientViewScreen() {
   useEffect(() => {
     let active = true;
     InteractionManager.runAfterInteractions(() => {
-      if (active && ingredient) {
-        const map = computeUsage();
-        setUsage(map[ingredient.id]);
+      if (ingredient) {
+        computeUsage().then((map) => {
+          if (active && ingredient) {
+            setUsage(map[ingredient.id]);
+          }
+        });
       }
     });
     return () => {

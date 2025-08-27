@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,10 +14,8 @@ import {
   type Ingredient,
 } from '@/storage/ingredientsStorage';
 import { getAllCocktails, type Cocktail } from '@/storage/cocktailsStorage';
-import {
-  calculateIngredientUsage,
-  type IngredientUsage,
-} from '@/utils/ingredientUsage';
+import { type IngredientUsage } from '@/utils/ingredientUsage';
+import { calculateIngredientUsageAsync } from '@/utils/calculateIngredientUsageAsync';
 import {
   getIngredientsCache,
   setIngredientsCache,
@@ -36,17 +34,19 @@ export default function AllIngredientsScreen() {
   );
   const router = useRouter();
 
-  const computeUsage = useMemo(
-    () => () => calculateIngredientUsage(cocktails, barIds),
+  const computeUsage = useCallback(
+    () => calculateIngredientUsageAsync(cocktails, barIds),
     [cocktails, barIds]
   );
 
   useEffect(() => {
     let active = true;
     InteractionManager.runAfterInteractions(() => {
-      if (active) {
-        setUsage(computeUsage());
-      }
+      computeUsage().then((map) => {
+        if (active) {
+          setUsage(map);
+        }
+      });
     });
     return () => {
       active = false;
