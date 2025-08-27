@@ -119,7 +119,7 @@ export default function AddIngredientScreen() {
 
         <Text style={[styles.label, { color: theme.colors.onSurface }]}>Photo:</Text>
         <TouchableOpacity
-          style={[styles.imageButton, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
           onPress={pickImage}
         >
           {photoUri ? (
@@ -298,7 +298,8 @@ const BASE_IMAGE_SIZE = 40;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 4,
   },
   label: {
     fontWeight: 'bold',
