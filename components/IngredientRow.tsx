@@ -68,20 +68,35 @@ function IngredientRow({
         highlightColor && { backgroundColor: highlightColor },
       ]}
     >
-      <View
-        style={[
-          styles.item,
-          isBranded && {
-            ...styles.brandedStripe,
-            borderLeftColor: theme.colors.primary,
-          },
-          !inBar && !highlightColor && styles.dimmed,
-          isNavigating && {
-            ...styles.navigatingRow,
-            backgroundColor: withAlpha(theme.colors.tertiary, 0.3),
-          },
-        ]}
-      >
+        <View
+          style={[
+            styles.item,
+            isBranded && {
+              ...styles.brandedStripe,
+              borderLeftColor: theme.colors.primary,
+            },
+            !inBar && !highlightColor && styles.dimmed,
+            isNavigating && {
+              ...styles.navigatingRow,
+              backgroundColor: withAlpha(theme.colors.tertiary, 0.3),
+            },
+          ]}
+        >
+        {onToggleInBar && (
+          <Pressable
+            onPress={() => onToggleInBar(id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            android_ripple={{ ...ripple, borderless: true }}
+            style={({ pressed }) => [styles.leftCheck, pressed && styles.pressedCheck]}
+          >
+            <MaterialIcons
+              name={inBar ? 'check-box' : 'check-box-outline-blank'}
+              size={22}
+              color={inBar ? theme.colors.primary : theme.colors.onSurfaceVariant}
+            />
+          </Pressable>
+        )}
+
         {inShoppingList && !onToggleShoppingList && !onRemove && (
           <MaterialIcons
             name="shopping-cart"
@@ -185,19 +200,6 @@ function IngredientRow({
               color={theme.colors.error}
             />
           </Pressable>
-        ) : onToggleInBar ? (
-          <Pressable
-            onPress={() => onToggleInBar(id)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            android_ripple={{ ...ripple, borderless: true }}
-            style={({ pressed }) => [styles.checkButton, pressed && styles.pressedCheck]}
-          >
-            <MaterialIcons
-              name={inBar ? 'check-circle' : 'radio-button-unchecked'}
-              size={22}
-              color={inBar ? theme.colors.primary : theme.colors.onSurfaceVariant}
-            />
-          </Pressable>
         ) : onToggleShoppingList ? (
           <Pressable
             onPress={() => onToggleShoppingList(id)}
@@ -265,6 +267,7 @@ const styles = StyleSheet.create({
   cartIcon: { position: 'absolute', bottom: 4, right: 60, zIndex: 1 },
   brandedStripe: { borderLeftWidth: 4, paddingLeft: 8 },
   checkButton: { marginLeft: 8, paddingVertical: 6, paddingHorizontal: 4 },
+  leftCheck: { marginRight: 8, paddingVertical: 6, paddingHorizontal: 4 },
   pressedCheck: { opacity: 0.7, transform: [{ scale: 0.92 }] },
   removeButton: { marginLeft: 8, paddingVertical: 6, paddingHorizontal: 4 },
   pressedRemove: { opacity: 0.7, transform: [{ scale: 0.92 }] },
