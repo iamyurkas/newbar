@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getImageSource } from '../../utils/getImageSource';
 
 import IngredientHeader from '@/components/IngredientHeader';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -130,7 +131,7 @@ export default function IngredientViewScreen() {
         <Text style={[styles.name, { color: theme.colors.onSurface }]}>Ingredient details</Text>
         {ingredient.photoUri ? (
           <Image
-            source={{ uri: ingredient.photoUri }}
+            source={getImageSource(ingredient.photoUri)}
             style={styles.image}
             resizeMode="contain"
           />
@@ -191,7 +192,7 @@ export default function IngredientViewScreen() {
               <View style={styles.baseContainer}>
                 {baseIngredient.photoUri ? (
                   <Image
-                    source={{ uri: baseIngredient.photoUri }}
+                    source={getImageSource(baseIngredient.photoUri)}
                     style={styles.baseImage}
                     resizeMode="contain"
                   />
@@ -249,7 +250,7 @@ export default function IngredientViewScreen() {
                   <View style={styles.baseContainer}>
                     {b.photoUri ? (
                       <Image
-                        source={{ uri: b.photoUri }}
+                        source={getImageSource(b.photoUri)}
                         style={styles.baseImage}
                         resizeMode="contain"
                       />

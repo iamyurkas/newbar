@@ -18,6 +18,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import IngredientHeader from '@/components/IngredientHeader';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
+import { getImageSource } from '../utils/getImageSource';
 
 import {
   deleteIngredient,
@@ -197,7 +198,7 @@ export default function EditIngredientScreen() {
             onPress={pickImage}
           >
             {photoUri ? (
-              <Image source={{ uri: photoUri }} style={styles.image} />
+              <Image source={getImageSource(photoUri)} style={styles.image} />
             ) : (
               <Text
                 style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
@@ -253,7 +254,7 @@ export default function EditIngredientScreen() {
               <View style={styles.baseFieldContent}>
                 {baseIngredient.photoUri ? (
                   <Image
-                    source={{ uri: baseIngredient.photoUri }}
+                    source={getImageSource(baseIngredient.photoUri)}
                     style={styles.baseFieldImage}
                     resizeMode="contain"
                   />
@@ -351,7 +352,7 @@ export default function EditIngredientScreen() {
                         }}
                       >
                         {b.photoUri ? (
-                          <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
+                          <Image source={getImageSource(b.photoUri)} style={styles.baseImage} />
                         ) : (
                           <View
                             style={[

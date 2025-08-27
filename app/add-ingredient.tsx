@@ -18,6 +18,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import IngredientHeader from '@/components/IngredientHeader';
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
+import { getImageSource } from '../utils/getImageSource';
 
 import {
   addIngredient,
@@ -145,7 +146,7 @@ export default function AddIngredientScreen() {
         >
           {photoUri ? (
             <Image
-              source={{ uri: photoUri }}
+              source={getImageSource(photoUri)}
               style={styles.image}
               resizeMode="contain"
             />
@@ -204,7 +205,7 @@ export default function AddIngredientScreen() {
             <View style={styles.baseFieldContent}>
               {baseIngredient.photoUri ? (
                 <Image
-                  source={{ uri: baseIngredient.photoUri }}
+                  source={getImageSource(baseIngredient.photoUri)}
                   style={styles.baseFieldImage}
                 />
               ) : (
@@ -324,7 +325,7 @@ export default function AddIngredientScreen() {
                         }}
                       >
                         {b.photoUri ? (
-                          <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
+                          <Image source={getImageSource(b.photoUri)} style={styles.baseImage} />
                         ) : (
                           <View
                             style={[
