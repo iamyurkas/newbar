@@ -53,20 +53,28 @@ export default function IngredientViewScreen() {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        {ingredient.photoUri && (
-          <Image
-            source={{ uri: ingredient.photoUri }}
-            style={[styles.image]}
-          />
-        )}
         <Text style={[styles.name, { color: theme.colors.onSurface }]}> 
           {ingredient.name}
         </Text>
-        {ingredient.description ? (
-          <Text style={[styles.description, { color: theme.colors.onSurface }]}> 
-            {ingredient.description}
-          </Text>
-        ) : null}
+        {ingredient.photoUri ? (
+          <Image
+            source={{ uri: ingredient.photoUri }}
+            style={styles.image}
+          />
+        ) : (
+          <View
+            style={[
+              styles.imagePlaceholder,
+              { backgroundColor: theme.colors.surfaceVariant },
+            ]}
+          >
+            <Text
+              style={[styles.noImageText, { color: theme.colors.onSurfaceVariant }]}
+            >
+              No image
+            </Text>
+          </View>
+        )}
         {ingredient.tags.length > 0 && (
           <View style={styles.tagContainer}>
             {ingredient.tags.map((tag) => (
@@ -80,18 +88,38 @@ export default function IngredientViewScreen() {
           </View>
         )}
         {baseIngredient && (
-          <View style={styles.baseContainer}>
-            {baseIngredient.photoUri && (
-              <Image
-                source={{ uri: baseIngredient.photoUri }}
-                style={styles.baseImage}
-              />
-            )}
-            <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
-              {baseIngredient.name}
+          <View style={styles.baseSection}>
+            <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}> 
+              Base ingredient:
             </Text>
+            <View style={styles.baseContainer}>
+              {baseIngredient.photoUri ? (
+                <Image
+                  source={{ uri: baseIngredient.photoUri }}
+                  style={styles.baseImage}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.baseImage,
+                    styles.baseImagePlaceholder,
+                    { backgroundColor: theme.colors.surfaceVariant },
+                  ]}
+                />
+              )}
+              <Text
+                style={[styles.baseName, { color: theme.colors.onSurface }]}
+              >
+                {baseIngredient.name}
+              </Text>
+            </View>
           </View>
         )}
+        {ingredient.description ? (
+          <Text style={[styles.description, { color: theme.colors.onSurface }]}> 
+            {ingredient.description}
+          </Text>
+        ) : null}
       </ScrollView>
     </>
   );
@@ -114,7 +142,19 @@ const styles = StyleSheet.create({
     height: IMAGE_SIZE,
     borderRadius: 8,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginTop: 16,
+  },
+  imagePlaceholder: {
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
+    borderRadius: 8,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  noImageText: {
+    fontSize: 14,
   },
   name: {
     fontSize: 24,
@@ -122,12 +162,12 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    marginTop: 8,
+    marginTop: 24,
   },
   tagContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 16,
+    marginTop: 24,
   },
   tag: {
     paddingHorizontal: 10,
@@ -139,16 +179,25 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  baseSection: {
+    marginTop: 24,
+  },
+  baseLabel: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
   baseContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 24,
   },
   baseImage: {
     width: BASE_IMAGE_SIZE,
     height: BASE_IMAGE_SIZE,
     borderRadius: 8,
     marginRight: 12,
+  },
+  baseImagePlaceholder: {
+    borderRadius: 8,
   },
   baseName: {
     fontSize: 16,
