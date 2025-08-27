@@ -47,8 +47,8 @@ export default function AllIngredientsScreen() {
       tags={item.tags}
       usageCount={0}
       showMake={false}
-      inBar={false}
-      inShoppingList={false}
+      inBar={item.inBar}
+      inShoppingList={item.inShoppingList}
       baseIngredientId={item.baseIngredientId}
       onPress={() => router.push(`/ingredient/${item.id}`)}
     />

@@ -9,6 +9,8 @@ import {
   getIngredientById,
   getBrandedIngredients,
   unlinkBaseIngredient,
+  setIngredientInBar,
+  setIngredientInShoppingList,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
 
@@ -53,6 +55,22 @@ export default function IngredientViewScreen() {
     }
   };
 
+  const handleToggleInBar = async () => {
+    if (ingredient) {
+      const newValue = !ingredient.inBar;
+      await setIngredientInBar(ingredient.id, newValue);
+      setIngredient({ ...ingredient, inBar: newValue });
+    }
+  };
+
+  const handleToggleShoppingList = async () => {
+    if (ingredient) {
+      const newValue = !ingredient.inShoppingList;
+      await setIngredientInShoppingList(ingredient.id, newValue);
+      setIngredient({ ...ingredient, inShoppingList: newValue });
+    }
+  };
+
   if (!ingredient) {
     return (
       <View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
@@ -90,6 +108,35 @@ export default function IngredientViewScreen() {
             <Text style={[styles.noImageText, { color: theme.colors.onSurfaceVariant }]}>No image</Text>
           </View>
         )}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity onPress={handleToggleInBar}>
+            <MaterialIcons
+              name={ingredient.inBar ? 'check-box' : 'check-box-outline-blank'}
+              size={24}
+              color={
+                ingredient.inBar
+                  ? theme.colors.primary
+                  : theme.colors.onSurfaceVariant
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.shoppingIcon}
+            onPress={handleToggleShoppingList}
+          >
+            <MaterialIcons
+              name={
+                ingredient.inShoppingList ? 'shopping-cart' : 'add-shopping-cart'
+              }
+              size={24}
+              color={
+                ingredient.inShoppingList
+                  ? theme.colors.primary
+                  : theme.colors.onSurfaceVariant
+              }
+            />
+          </TouchableOpacity>
+        </View>
         {ingredient.tags.length > 0 && (
           <View style={styles.tagContainer}>
             {ingredient.tags.map((tag) => (
@@ -138,7 +185,7 @@ export default function IngredientViewScreen() {
             </TouchableOpacity>
           </View>
         )}
-        {!ingredient.baseIngredientId && (
+        {!ingredient.baseIngredientId && brandedIngredients.length > 0 && (
           <View style={styles.baseSection}>
             <Text style={[styles.baseLabel, { color: theme.colors.onSurface }]}>Branded ingredients:</Text>
             {brandedIngredients.map((b) => (
@@ -276,5 +323,13 @@ const styles = StyleSheet.create({
   },
   unlinkButton: {
     padding: 8,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  shoppingIcon: {
+    marginLeft: 16,
   },
 });

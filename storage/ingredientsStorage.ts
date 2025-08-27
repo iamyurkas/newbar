@@ -8,6 +8,8 @@ export type Ingredient = {
   photoUri?: string | null;
   tags: IngredientTag[];
   baseIngredientId?: number | null;
+  inBar?: boolean;
+  inShoppingList?: boolean;
 };
 
 const db = openDatabaseSync('ingredients.db');
@@ -19,12 +21,26 @@ db.execSync(
     description TEXT,
     photoUri TEXT,
     tags TEXT,
-    baseIngredientId INTEGER
+    baseIngredientId INTEGER,
+    inBar INTEGER,
+    inShoppingList INTEGER
   );`
 );
 
 try {
   db.execSync('ALTER TABLE ingredients ADD COLUMN baseIngredientId INTEGER');
+} catch {
+  // ignore if column already exists
+}
+
+try {
+  db.execSync('ALTER TABLE ingredients ADD COLUMN inBar INTEGER DEFAULT 0');
+} catch {
+  // ignore if column already exists
+}
+
+try {
+  db.execSync('ALTER TABLE ingredients ADD COLUMN inShoppingList INTEGER DEFAULT 0');
 } catch {
   // ignore if column already exists
 }
@@ -36,6 +52,8 @@ type IngredientRow = {
   photoUri: string | null;
   tags: string | null;
   baseIngredientId: number | null;
+  inBar: number | null;
+  inShoppingList: number | null;
 };
 
 function mapRowToIngredient(row: IngredientRow): Ingredient {
@@ -46,6 +64,8 @@ function mapRowToIngredient(row: IngredientRow): Ingredient {
     photoUri: row.photoUri ?? undefined,
     tags: row.tags ? (JSON.parse(row.tags) as IngredientTag[]) : [],
     baseIngredientId: row.baseIngredientId ?? undefined,
+    inBar: row.inBar === 1,
+    inShoppingList: row.inShoppingList === 1,
   };
 }
 
@@ -57,13 +77,15 @@ async function queryIngredients(whereClause?: string): Promise<Ingredient[]> {
 
 export async function addIngredient(ingredient: Ingredient): Promise<void> {
   await db.runAsync(
-    'INSERT INTO ingredients (id, name, description, photoUri, tags, baseIngredientId) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO ingredients (id, name, description, photoUri, tags, baseIngredientId, inBar, inShoppingList) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     ingredient.id,
     ingredient.name,
     ingredient.description ?? null,
     ingredient.photoUri ?? null,
     JSON.stringify(ingredient.tags),
     ingredient.baseIngredientId ?? null,
+    ingredient.inBar ? 1 : 0,
+    ingredient.inShoppingList ? 1 : 0,
   );
 }
 
@@ -99,6 +121,28 @@ export async function getBrandedIngredients(
 export async function unlinkBaseIngredient(ingredientId: number): Promise<void> {
   await db.runAsync(
     'UPDATE ingredients SET baseIngredientId = NULL WHERE id = ?',
+    ingredientId
+  );
+}
+
+export async function setIngredientInBar(
+  ingredientId: number,
+  inBar: boolean
+): Promise<void> {
+  await db.runAsync(
+    'UPDATE ingredients SET inBar = ? WHERE id = ?',
+    inBar ? 1 : 0,
+    ingredientId
+  );
+}
+
+export async function setIngredientInShoppingList(
+  ingredientId: number,
+  inShoppingList: boolean
+): Promise<void> {
+  await db.runAsync(
+    'UPDATE ingredients SET inShoppingList = ? WHERE id = ?',
+    inShoppingList ? 1 : 0,
     ingredientId
   );
 }
