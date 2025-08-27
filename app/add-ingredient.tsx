@@ -109,6 +109,7 @@ export default function AddIngredientScreen() {
           style={[
             styles.input,
             {
+              height: INPUT_HEIGHT,
               borderColor: theme.colors.outline,
               backgroundColor: theme.colors.surface,
               color: theme.colors.onSurface,
@@ -166,21 +167,40 @@ export default function AddIngredientScreen() {
           style={[
             styles.input,
             {
+              height: INPUT_HEIGHT,
               borderColor: theme.colors.outline,
               backgroundColor: theme.colors.surface,
+              flexDirection: 'row',
+              alignItems: 'center',
             },
           ]}
           onPress={() => setBaseModalVisible(true)}
         >
-          <Text
-            style={{
-              color: baseIngredient
-                ? theme.colors.onBackground
-                : theme.colors.placeholder,
-            }}
-          >
-            {baseIngredient ? baseIngredient.name : 'Base ingredient (optional)'}
-          </Text>
+          {baseIngredient ? (
+            <View style={styles.baseFieldContent}>
+              {baseIngredient.photoUri ? (
+                <Image
+                  source={{ uri: baseIngredient.photoUri }}
+                  style={styles.baseFieldImage}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.baseFieldImage,
+                    styles.baseImagePlaceholder,
+                    { backgroundColor: theme.colors.surfaceVariant },
+                  ]}
+                />
+              )}
+              <Text style={{ color: theme.colors.onBackground }}>
+                {baseIngredient.name}
+              </Text>
+            </View>
+          ) : (
+            <Text style={{ color: theme.colors.placeholder }}>
+              Base ingredient (optional)
+            </Text>
+          )}
         </TouchableOpacity>
 
         <Text style={[styles.label, { color: theme.colors.onSurface }]}>Description:</Text>
@@ -191,7 +211,7 @@ export default function AddIngredientScreen() {
           style={[
             styles.input,
             {
-              height: 60,
+              height: INPUT_HEIGHT * 3,
               borderColor: theme.colors.outline,
               backgroundColor: theme.colors.surface,
               color: theme.colors.onSurface,
@@ -199,6 +219,8 @@ export default function AddIngredientScreen() {
           ]}
           placeholderTextColor={theme.colors.placeholder}
           multiline
+          numberOfLines={3}
+          textAlignVertical="top"
         />
 
         <TouchableOpacity
@@ -295,6 +317,8 @@ export default function AddIngredientScreen() {
 
 const IMAGE_SIZE = 150;
 const BASE_IMAGE_SIZE = 40;
+const BASE_FIELD_IMAGE_SIZE = 28;
+const INPUT_HEIGHT = 48;
 
 const styles = StyleSheet.create({
   container: {
@@ -359,6 +383,16 @@ const styles = StyleSheet.create({
   baseImagePlaceholder: {},
   baseName: {
     fontSize: 16,
+  },
+  baseFieldContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  baseFieldImage: {
+    width: BASE_FIELD_IMAGE_SIZE,
+    height: BASE_FIELD_IMAGE_SIZE,
+    borderRadius: 8,
+    marginRight: 8,
   },
   saveButton: {
     marginTop: 24,
