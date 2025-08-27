@@ -14,8 +14,9 @@ import {
   View,
 } from 'react-native';
 
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
+import AddIngredientHeader from '@/components/AddIngredientHeader';
 
 import {
   addIngredient,
@@ -90,13 +91,14 @@ export default function AddIngredientScreen() {
     });
     router.replace('/ingredients/all');
   };
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
+    <>
+      <Stack.Screen options={{ header: () => <AddIngredientHeader /> }} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -314,6 +316,7 @@ export default function AddIngredientScreen() {
         </View>
       </Modal>
     </KeyboardAvoidingView>
+    </>
   );
 }
 
