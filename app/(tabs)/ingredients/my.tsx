@@ -12,6 +12,11 @@ import {
   setIngredientInBar,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import { getAllCocktails, type Cocktail } from '@/storage/cocktailsStorage';
+import {
+  calculateIngredientUsage,
+  type IngredientUsage,
+} from '@/utils/ingredientUsage';
 import {
   getIngredientsCache,
   setIngredientsCache,
@@ -20,6 +25,8 @@ import IngredientRow from '@/components/IngredientRow';
 
 export default function MyIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [usage, setUsage] = useState<Record<number, IngredientUsage>>({});
+  const [cocktails, setCocktails] = useState<Cocktail[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -29,14 +36,28 @@ export default function MyIngredientsScreen() {
 
       const load = async () => {
         const cached = getIngredientsCache('my');
+        const cocktailsData = await getAllCocktails();
+        setCocktails(cocktailsData);
         if (cached) {
           setIngredients(cached);
+          setUsage(
+            calculateIngredientUsage(
+              cocktailsData,
+              new Set(cached.map((i) => i.id))
+            )
+          );
           setLoading(false);
         } else {
           setLoading(true);
           const data = await getIngredientsInBar();
           if (isActive) {
             setIngredients(data);
+            setUsage(
+              calculateIngredientUsage(
+                cocktailsData,
+                new Set(data.map((i) => i.id))
+              )
+            );
             setIngredientsCache('my', data);
             setLoading(false);
           }
@@ -72,6 +93,12 @@ export default function MyIngredientsScreen() {
     setIngredients(newList);
     await setIngredientInBar(id, updated);
     setIngredientsCache('my', newList);
+    setUsage(
+      calculateIngredientUsage(
+        cocktails,
+        new Set(newList.map((i) => i.id))
+      )
+    );
   };
 
   const renderItem = ({ item }: { item: Ingredient }) => (
@@ -80,8 +107,9 @@ export default function MyIngredientsScreen() {
       name={item.name}
       photoUri={item.photoUri}
       tags={item.tags}
-      usageCount={0}
-      showMake={false}
+      usageCount={usage[item.id]?.count || 0}
+      singleCocktailName={usage[item.id]?.singleName}
+      showMake
       inBar={item.inBar}
       inShoppingList={item.inShoppingList}
       baseIngredientId={item.baseIngredientId}

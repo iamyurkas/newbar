@@ -132,11 +132,11 @@ function IngredientRow({
               {usageCount > 0
                 ? usageCount === 1
                   ? showMake
-                    ? `Make ${singleCocktailName || '1 cocktail'}`
-                    : singleCocktailName || '1 cocktail'
+                    ? `Make ${singleCocktailName || '1 cocktail'} with it`
+                    : `Used in ${singleCocktailName || '1 cocktail'}`
                   : showMake
-                  ? `Make ${usageCount} cocktails`
-                  : `${usageCount} cocktails`
+                  ? `Make ${usageCount} cocktails with it`
+                  : `Used in ${usageCount} cocktails`
                 : '\u00A0'}
             </Text>
           </View>

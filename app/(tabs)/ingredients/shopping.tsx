@@ -6,6 +6,11 @@ import {
   setIngredientInShoppingList,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import { getAllCocktails } from '@/storage/cocktailsStorage';
+import {
+  calculateIngredientUsage,
+  type IngredientUsage,
+} from '@/utils/ingredientUsage';
 import {
   getIngredientsCache,
   setIngredientsCache,
@@ -14,6 +19,7 @@ import IngredientRow from '@/components/IngredientRow';
 
 export default function ShoppingIngredientsScreen() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [usage, setUsage] = useState<Record<number, IngredientUsage>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -24,13 +30,19 @@ export default function ShoppingIngredientsScreen() {
       const load = async () => {
         const cached = getIngredientsCache('shopping');
         if (cached) {
+          const cocktails = await getAllCocktails();
+          setUsage(calculateIngredientUsage(cocktails));
           setIngredients(cached);
           setLoading(false);
         } else {
           setLoading(true);
-          const data = await getShoppingListIngredients();
+          const [data, cocktails] = await Promise.all([
+            getShoppingListIngredients(),
+            getAllCocktails(),
+          ]);
           if (isActive) {
             setIngredients(data);
+            setUsage(calculateIngredientUsage(cocktails));
             setIngredientsCache('shopping', data);
             setLoading(false);
           }
@@ -67,7 +79,8 @@ export default function ShoppingIngredientsScreen() {
       name={item.name}
       photoUri={item.photoUri}
       tags={item.tags}
-      usageCount={0}
+      usageCount={usage[item.id]?.count || 0}
+      singleCocktailName={usage[item.id]?.singleName}
       showMake={false}
       inBar={item.inBar}
       inShoppingList={item.inShoppingList}
