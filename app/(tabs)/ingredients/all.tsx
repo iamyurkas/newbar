@@ -6,6 +6,10 @@ import {
   setIngredientInBar,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import {
+  getIngredientsCache,
+  setIngredientsCache,
+} from '@/storage/ingredientsCache';
 import IngredientRow from '@/components/IngredientRow';
 
 export default function AllIngredientsScreen() {
@@ -18,11 +22,18 @@ export default function AllIngredientsScreen() {
       let isActive = true;
 
       const load = async () => {
-        setLoading(true);
-        const data = await getAllIngredients();
-        if (isActive) {
-          setIngredients(data);
+        const cached = getIngredientsCache('all');
+        if (cached) {
+          setIngredients(cached);
           setLoading(false);
+        } else {
+          setLoading(true);
+          const data = await getAllIngredients();
+          if (isActive) {
+            setIngredients(data);
+            setIngredientsCache('all', data);
+            setLoading(false);
+          }
         }
       };
 
@@ -49,10 +60,12 @@ export default function AllIngredientsScreen() {
       return;
     }
     const updated = !ingredient.inBar;
-    setIngredients((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, inBar: updated } : i))
+    const newList = ingredients.map((i) =>
+      i.id === id ? { ...i, inBar: updated } : i
     );
+    setIngredients(newList);
     await setIngredientInBar(id, updated);
+    setIngredientsCache('all', newList);
   };
 
   const renderItem = ({ item }: { item: Ingredient }) => (
