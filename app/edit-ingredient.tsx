@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -40,6 +41,7 @@ export default function EditIngredientScreen() {
   const [baseIngredients, setBaseIngredients] = useState<Ingredient[]>([]);
   const [baseSearch, setBaseSearch] = useState('');
   const [baseModalVisible, setBaseModalVisible] = useState(false);
+  const searchRef = useRef<TextInput>(null);
   const [alert, setAlert] = useState<{ title: string; message: string } | null>(
     null
   );
@@ -77,6 +79,12 @@ export default function EditIngredientScreen() {
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (baseModalVisible) {
+      setTimeout(() => searchRef.current?.focus(), 100);
+    }
+  }, [baseModalVisible]);
 
   const toggleTag = (tag: IngredientTag) => {
     if (tags.find((t) => t.id === tag.id)) {
@@ -167,30 +175,25 @@ export default function EditIngredientScreen() {
             style={[
               styles.input,
               {
+                height: INPUT_HEIGHT,
                 borderColor: theme.colors.outline,
-                color: theme.colors.onSurface,
                 backgroundColor: theme.colors.surface,
+                color: theme.colors.onSurface,
               },
             ]}
-            placeholderTextColor={theme.colors.onSurfaceVariant}
+            placeholderTextColor={theme.colors.placeholder}
           />
-          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Description:</Text>
-          <TextInput
-            placeholder="Optional"
-            value={description}
-            onChangeText={setDescription}
-            style={[
-              styles.input,
-              {
-                borderColor: theme.colors.outline,
-                color: theme.colors.onSurface,
-                backgroundColor: theme.colors.surface,
-              },
-            ]}
-            placeholderTextColor={theme.colors.onSurfaceVariant}
-          />
+
+          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Photo:</Text>
           <TouchableOpacity
-            style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
+            style={[
+              styles.imageButton,
+              {
+                backgroundColor: photoUri
+                  ? theme.colors.surface
+                  : theme.colors.placeholder,
+              },
+            ]}
             onPress={pickImage}
           >
             {photoUri ? (
@@ -199,154 +202,175 @@ export default function EditIngredientScreen() {
               <Text
                 style={[styles.imagePlaceholder, { color: theme.colors.onSurfaceVariant }]}
               >
-                Pick image
+                Tap to select image
               </Text>
             )}
           </TouchableOpacity>
+
           <Text style={[styles.label, { color: theme.colors.onSurface }]}>Tags:</Text>
           <View style={styles.tagContainer}>
-            {availableTags.map((tag) => (
+            {tags.map((tag) => (
               <TouchableOpacity
                 key={tag.id}
-                style={[
-                  styles.tag,
-                  {
-                    backgroundColor: tags.find((t) => t.id === tag.id)
-                      ? theme.colors.primary
-                      : theme.colors.surfaceVariant,
-                  },
-                ]}
+                style={[styles.tag, { backgroundColor: tag.color }]}
                 onPress={() => toggleTag(tag)}
               >
-                <Text
-                  style={[
-                    styles.tagText,
-                    {
-                      color: tags.find((t) => t.id === tag.id)
-                        ? theme.colors.onPrimary
-                        : theme.colors.onSurface,
-                    },
-                  ]}
-                >
-                  {tag.name}
-                </Text>
+                <Text style={styles.tagText}>{tag.name}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Base ingredient:</Text>
+          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Add Tag:</Text>
+          <View style={styles.tagContainer}>
+            {availableTags
+              .filter((t) => !tags.some((tag) => tag.id === t.id))
+              .map((tag) => (
+                <TouchableOpacity
+                  key={tag.id}
+                  style={[styles.tag, { backgroundColor: tag.color }]}
+                  onPress={() => toggleTag(tag)}
+                >
+                  <Text style={styles.tagText}>{tag.name}</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
+
+          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Base Ingredient:</Text>
           <TouchableOpacity
             style={[
               styles.input,
               {
+                height: INPUT_HEIGHT,
                 borderColor: theme.colors.outline,
+                backgroundColor: theme.colors.surface,
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: theme.colors.surface,
               },
             ]}
             onPress={() => setBaseModalVisible(true)}
           >
-            {baseIngredient?.photoUri ? (
-              <Image
-                source={{ uri: baseIngredient.photoUri }}
-                style={styles.baseFieldImage}
-              />
-            ) : baseIngredient ? (
-              <View
-                style={[
-                  styles.baseFieldImage,
-                  { backgroundColor: theme.colors.placeholder },
-                ]}
-              />
-            ) : null}
-            <Text
-              style={[
-                styles.baseName,
-                {
-                  color: baseIngredient
-                    ? theme.colors.onSurface
-                    : theme.colors.onSurfaceVariant,
-                },
-              ]}
-            >
-              {baseIngredient ? baseIngredient.name : 'Select base'}
-            </Text>
+            {baseIngredient ? (
+              <View style={styles.baseFieldContent}>
+                {baseIngredient.photoUri ? (
+                  <Image
+                    source={{ uri: baseIngredient.photoUri }}
+                    style={styles.baseFieldImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.baseFieldImage,
+                      styles.baseImagePlaceholder,
+                      { backgroundColor: theme.colors.placeholder },
+                    ]}
+                  />
+                )}
+                <Text style={{ color: theme.colors.onBackground }}>
+                  {baseIngredient.name}
+                </Text>
+              </View>
+            ) : (
+              <Text style={{ color: theme.colors.placeholder }}>
+                Base ingredient (optional)
+              </Text>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <Text style={[styles.label, { color: theme.colors.onSurface }]}>Description:</Text>
+          <TextInput
+            placeholder="Optional description"
+            value={description}
+            onChangeText={setDescription}
             style={[
-              styles.saveButton,
-              { marginTop: 24, backgroundColor: theme.colors.primary },
+              styles.input,
+              {
+                height: INPUT_HEIGHT * 2,
+                borderColor: theme.colors.outline,
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.onSurface,
+              },
             ]}
+            placeholderTextColor={theme.colors.placeholder}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: theme.colors.primary }]}
             onPress={handleSave}
           >
-            <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Save</Text>
+            <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Save Ingredient</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
 
       <Modal
         visible={baseModalVisible}
-        transparent={false}
-        animationType="slide"
+        transparent
+        animationType="fade"
         onRequestClose={() => setBaseModalVisible(false)}
       >
-        <View style={[styles.modalContainer, { backgroundColor: theme.colors.background }]}
-        >
-          <TextInput
-            placeholder="Search"
-            value={baseSearch}
-            onChangeText={setBaseSearch}
-            style={[
-              styles.input,
-              {
-                borderColor: theme.colors.outline,
-                color: theme.colors.onSurface,
-                backgroundColor: theme.colors.surface,
-              },
-            ]}
-            placeholderTextColor={theme.colors.onSurfaceVariant}
-          />
-          <ScrollView>
-            {baseIngredients
-              .filter((b) => b.name.toLowerCase().includes(baseSearch.toLowerCase()))
-              .map((b) => (
-                <TouchableOpacity
-                  key={b.id}
-                  style={styles.baseItem}
-                  onPress={() => {
-                    setBaseIngredient(b);
-                    setBaseModalVisible(false);
-                  }}
-                >
-                  {b.photoUri ? (
-                    <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
-                  ) : (
-                    <View
-                      style={[
-                        styles.baseImage,
-                        styles.baseImagePlaceholder,
-                        { backgroundColor: theme.colors.placeholder },
-                      ]}
-                    />
-                  )}
-                  <Text style={[styles.baseName, { color: theme.colors.onSurface }]}>
-                    {b.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-          </ScrollView>
-          <TouchableOpacity
-            style={[
-              styles.saveButton,
-              { marginTop: 16, backgroundColor: theme.colors.primary },
-            ]}
-            onPress={() => setBaseModalVisible(false)}
-          >
-            <Text style={[styles.saveText, { color: theme.colors.onPrimary }]}>Close</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableWithoutFeedback onPress={() => setBaseModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View
+                style={[
+                  styles.modalContent,
+                  { backgroundColor: theme.colors.background },
+                ]}
+              >
+                <TextInput
+                  ref={searchRef}
+                  placeholder="Search"
+                  value={baseSearch}
+                  onChangeText={setBaseSearch}
+                  style={[
+                    styles.input,
+                    {
+                      borderColor: theme.colors.outline,
+                      color: theme.colors.onSurface,
+                      backgroundColor: theme.colors.surface,
+                    },
+                  ]}
+                  placeholderTextColor={theme.colors.placeholder}
+                />
+                <ScrollView style={{ marginTop: 16 }}>
+                  {baseIngredients
+                    .filter((b) =>
+                      b.name.toLowerCase().includes(baseSearch.toLowerCase())
+                    )
+                    .map((b) => (
+                      <TouchableOpacity
+                        key={b.id}
+                        style={styles.baseItem}
+                        onPress={() => {
+                          setBaseIngredient(b);
+                          setBaseModalVisible(false);
+                        }}
+                      >
+                        {b.photoUri ? (
+                          <Image source={{ uri: b.photoUri }} style={styles.baseImage} />
+                        ) : (
+                          <View
+                            style={[
+                              styles.baseImage,
+                              styles.baseImagePlaceholder,
+                              { backgroundColor: theme.colors.placeholder },
+                            ]}
+                          />
+                        )}
+                        <Text style={[styles.baseName, { color: theme.colors.onSurface }]}> 
+                          {b.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       <ConfirmDialog
@@ -374,6 +398,7 @@ export default function EditIngredientScreen() {
 const IMAGE_SIZE = 150;
 const BASE_IMAGE_SIZE = 40;
 const BASE_FIELD_IMAGE_SIZE = 36;
+const INPUT_HEIGHT = 56;
 
 const styles = StyleSheet.create({
   container: {
@@ -421,6 +446,7 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   tagText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
   baseItem: {
@@ -438,6 +464,10 @@ const styles = StyleSheet.create({
   baseName: {
     fontSize: 16,
   },
+  baseFieldContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   baseFieldImage: {
     width: BASE_FIELD_IMAGE_SIZE,
     height: BASE_FIELD_IMAGE_SIZE,
@@ -453,9 +483,17 @@ const styles = StyleSheet.create({
   saveText: {
     fontWeight: 'bold',
   },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  modalContent: {
+    flex: 1,
+    marginHorizontal: '10%',
+    marginTop: 50,
+    marginBottom: '30%',
     padding: 24,
+    borderRadius: 8,
   },
 });
 
