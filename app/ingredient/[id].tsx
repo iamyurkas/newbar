@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ScrollView,
@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
+  InteractionManager,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -20,8 +21,12 @@ import {
   unlinkBaseIngredient,
   setIngredientInBar,
   setIngredientInShoppingList,
+  getIngredientsInBar,
   type Ingredient,
 } from '@/storage/ingredientsStorage';
+import { getAllCocktails, type Cocktail } from '@/storage/cocktailsStorage';
+import { calculateIngredientUsage, type IngredientUsage } from '@/utils/ingredientUsage';
+import { getIngredientsCache } from '@/storage/ingredientsCache';
 
 export default function IngredientViewScreen() {
   const { id } = useLocalSearchParams();
@@ -37,6 +42,13 @@ export default function IngredientViewScreen() {
     cancelLabel?: string;
     onConfirm: () => void | Promise<void>;
   } | null>(null);
+  const [barIds, setBarIds] = useState<Set<number>>(new Set());
+  const [cocktails, setCocktails] = useState<Cocktail[]>([]);
+  const [usage, setUsage] = useState<IngredientUsage>();
+  const computeUsage = useMemo(
+    () => () => calculateIngredientUsage(cocktails, barIds),
+    [cocktails, barIds]
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -56,6 +68,34 @@ export default function IngredientViewScreen() {
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    const load = async () => {
+      const cocktailsData = await getAllCocktails();
+      setCocktails(cocktailsData);
+      const cached = getIngredientsCache('all') ?? getIngredientsCache('my');
+      if (cached) {
+        setBarIds(new Set(cached.filter((i) => i.inBar).map((i) => i.id)));
+      } else {
+        const inBar = await getIngredientsInBar();
+        setBarIds(new Set(inBar.map((i) => i.id)));
+      }
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    InteractionManager.runAfterInteractions(() => {
+      if (active && ingredient) {
+        const map = computeUsage();
+        setUsage(map[ingredient.id]);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [computeUsage, ingredient]);
 
   const handleUnlinkBranded = (branded: Ingredient) => {
     setDialog({
@@ -93,9 +133,18 @@ export default function IngredientViewScreen() {
     if (ingredient) {
       const prev = ingredient;
       const newValue = !ingredient.inBar;
+      const prevBarIds = new Set(barIds);
+      const newBarIds = new Set(barIds);
+      if (newValue) {
+        newBarIds.add(ingredient.id);
+      } else {
+        newBarIds.delete(ingredient.id);
+      }
       setIngredient({ ...ingredient, inBar: newValue });
+      setBarIds(newBarIds);
       setIngredientInBar(ingredient.id, newValue).catch(() => {
         setIngredient(prev);
+        setBarIds(prevBarIds);
         setDialog({
           title: 'Error',
           message: 'Failed to update ingredient in bar.',
@@ -181,6 +230,17 @@ export default function IngredientViewScreen() {
             />
           </TouchableOpacity>
         </View>
+        {usage && usage.count > 0 && (
+          <Text style={[styles.usageText, { color: theme.colors.onSurfaceVariant }]}>
+            {ingredient.inBar
+              ? usage.count === 1
+                ? `Make ${usage.singleName || '1 cocktail'} with it`
+                : `Make ${usage.count} cocktails with it`
+              : usage.count === 1
+                ? `Used in ${usage.singleName || '1 cocktail'}`
+                : `Used in ${usage.count} cocktails`}
+          </Text>
+        )}
         {ingredient.tags.length > 0 && (
           <View style={styles.tagContainer}>
             {ingredient.tags.map((tag) => (
@@ -359,6 +419,10 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     marginTop: 24,
+  },
+  usageText: {
+    fontSize: 16,
+    marginTop: 8,
   },
   tagContainer: {
     flexDirection: 'row',
