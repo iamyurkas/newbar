@@ -13,6 +13,10 @@ import {
 } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import * as ImagePicker from 'expo-image-picker';
+
+// eslint-disable-next-line import/no-unresolved
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { useRouter } from 'expo-router';
 
 import { getAllTags, type IngredientTag } from '@/storage/ingredientTagsStorage';
@@ -65,7 +69,7 @@ export default function AddIngredientScreen() {
     }
     const id = Date.now();
     await addIngredient({ id, name: name.trim(), description, photoUri, tags });
-    router.back();
+    router.replace('/ingredients/all');
   };
 
   return (
