@@ -73,7 +73,7 @@ function mapRow(row: CocktailRow): Cocktail {
   };
 }
 
-export async function addCocktail(cocktail: Cocktail): Promise<void> {
+async function insertCocktail(cocktail: Cocktail): Promise<void> {
   await db.runAsync(
     'INSERT INTO cocktails (id, name, glassId, tags, description, instructions, ingredients, createdAt, updatedAt, photoUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     cocktail.id,
@@ -85,8 +85,23 @@ export async function addCocktail(cocktail: Cocktail): Promise<void> {
     JSON.stringify(cocktail.ingredients),
     cocktail.createdAt,
     cocktail.updatedAt,
-    cocktail.photoUri ?? null
+    cocktail.photoUri ?? null,
   );
+}
+
+export async function addCocktail(cocktail: Cocktail): Promise<void> {
+  await insertCocktail(cocktail);
+}
+
+export async function addCocktailsBulk(cocktails: Cocktail[]): Promise<void> {
+  if (cocktails.length === 0) {
+    return;
+  }
+  await db.withTransactionAsync(async () => {
+    for (const cocktail of cocktails) {
+      await insertCocktail(cocktail);
+    }
+  });
 }
 
 export async function getAllCocktails(): Promise<Cocktail[]> {

@@ -27,15 +27,35 @@ function mapRow(row: CocktailIngredientRow): CocktailIngredient {
   };
 }
 
-export async function addCocktailIngredient(
+async function insertCocktailIngredient(
   cocktailId: number,
-  ingredientId: number
+  ingredientId: number,
 ): Promise<void> {
   await db.runAsync(
     'INSERT OR IGNORE INTO cocktailIngredients (cocktailId, ingredientId) VALUES (?, ?)',
     cocktailId,
-    ingredientId
+    ingredientId,
   );
+}
+
+export async function addCocktailIngredient(
+  cocktailId: number,
+  ingredientId: number,
+): Promise<void> {
+  await insertCocktailIngredient(cocktailId, ingredientId);
+}
+
+export async function addCocktailIngredientsBulk(
+  ingredients: CocktailIngredient[],
+): Promise<void> {
+  if (ingredients.length === 0) {
+    return;
+  }
+  await db.withTransactionAsync(async () => {
+    for (const item of ingredients) {
+      await insertCocktailIngredient(item.cocktailId, item.ingredientId);
+    }
+  });
 }
 
 export async function getIngredientsForCocktail(

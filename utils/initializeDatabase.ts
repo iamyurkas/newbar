@@ -1,7 +1,19 @@
 import data from '@/assets/data/data.json';
-import { addIngredient, getAllIngredients, type Ingredient } from '@/storage/ingredientsStorage';
-import { addCocktail, getAllCocktails, type Cocktail, type CocktailIngredient } from '@/storage/cocktailsStorage';
-import { addCocktailIngredient } from '@/storage/cocktailIngredientsStorage';
+import {
+  addIngredientsBulk,
+  getAllIngredients,
+  type Ingredient,
+} from '@/storage/ingredientsStorage';
+import {
+  addCocktailsBulk,
+  getAllCocktails,
+  type Cocktail,
+  type CocktailIngredient,
+} from '@/storage/cocktailsStorage';
+import {
+  addCocktailIngredientsBulk,
+  type CocktailIngredient as CocktailIngredientLink,
+} from '@/storage/cocktailIngredientsStorage';
 
 // Ensure static tables are populated
 import '@/storage/ingredientTagsStorage';
@@ -26,13 +38,13 @@ export async function initializeDatabase(): Promise<void> {
   });
 
   // Insert ingredients
-  for (const ing of data.ingredients) {
-    const newId = ingredientIdMap.get(String(ing.id))!;
+  const ingredientsToInsert: Ingredient[] = data.ingredients.map((ing, index) => {
+    const newId = ingredientIdMap.get(String(ing.id)) ?? index + 1;
     const baseId = ing.baseIngredientId
       ? ingredientIdMap.get(String(ing.baseIngredientId))
       : undefined;
 
-    await addIngredient({
+    return {
       id: newId,
       name: ing.name,
       description: ing.description,
@@ -41,11 +53,12 @@ export async function initializeDatabase(): Promise<void> {
       baseIngredientId: baseId,
       inBar: false,
       inShoppingList: false,
-    } as Ingredient);
-  }
+    } as Ingredient;
+  });
+  await addIngredientsBulk(ingredientsToInsert);
 
   // Insert cocktails
-  for (const cocktail of data.cocktails) {
+  const cocktailsToInsert: Cocktail[] = data.cocktails.map((cocktail) => {
     const ingredients: CocktailIngredient[] = cocktail.ingredients.map((ci: any) => ({
       order: ci.order,
       ingredientId: ingredientIdMap.get(String(ci.ingredientId))!,
@@ -56,11 +69,11 @@ export async function initializeDatabase(): Promise<void> {
       allowBaseSubstitution: ci.allowBaseSubstitution,
       allowBrandedSubstitutes: ci.allowBrandedSubstitutes,
       substitutes: ci.substitutes
-        .map((s: string) => ingredientIdMap.get(String(s))!)
-        .filter(Boolean),
+        .map((s: string) => ingredientIdMap.get(String(s)))
+        .filter((id): id is number => id != null),
     }));
 
-    await addCocktail({
+    return {
       id: cocktail.id,
       name: cocktail.name,
       glassId: cocktail.glassId,
@@ -71,10 +84,16 @@ export async function initializeDatabase(): Promise<void> {
       createdAt: cocktail.createdAt,
       updatedAt: cocktail.updatedAt,
       photoUri: cocktail.photoUri ?? null,
-    } as Cocktail);
+    } as Cocktail;
+  });
+  await addCocktailsBulk(cocktailsToInsert);
 
-    for (const ci of ingredients) {
-      await addCocktailIngredient(cocktail.id, ci.ingredientId);
-    }
-  }
+  const cocktailIngredientLinks: CocktailIngredientLink[] = cocktailsToInsert.flatMap(
+    (cocktail) =>
+      cocktail.ingredients.map((ci) => ({
+        cocktailId: cocktail.id,
+        ingredientId: ci.ingredientId,
+      })),
+  );
+  await addCocktailIngredientsBulk(cocktailIngredientLinks);
 }

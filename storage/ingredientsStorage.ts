@@ -76,7 +76,7 @@ async function queryIngredients(whereClause?: string): Promise<Ingredient[]> {
   return rows.map(mapRowToIngredient);
 }
 
-export async function addIngredient(ingredient: Ingredient): Promise<void> {
+async function insertIngredient(ingredient: Ingredient): Promise<void> {
   await db.runAsync(
     'INSERT INTO ingredients (id, name, description, photoUri, tags, baseIngredientId, inBar, inShoppingList) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     ingredient.id,
@@ -88,6 +88,24 @@ export async function addIngredient(ingredient: Ingredient): Promise<void> {
     ingredient.inBar ? 1 : 0,
     ingredient.inShoppingList ? 1 : 0,
   );
+}
+
+export async function addIngredient(ingredient: Ingredient): Promise<void> {
+  await insertIngredient(ingredient);
+  markIngredientsCacheDirty();
+}
+
+export async function addIngredientsBulk(
+  ingredients: Ingredient[],
+): Promise<void> {
+  if (ingredients.length === 0) {
+    return;
+  }
+  await db.withTransactionAsync(async () => {
+    for (const ingredient of ingredients) {
+      await insertIngredient(ingredient);
+    }
+  });
   markIngredientsCacheDirty();
 }
 
